@@ -1,0 +1,46 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Launch PortifyAPI",
+            "type": "coreclr",
+            "request": "launch",
+            "preLaunchTask": "build",
+            "program": "${workspaceFolder}/PortifyAPI/PortifyAPI/bin/Debug/net10.0/PortifyAPI.dll",
+            "args": [],
+            "cwd": "${workspaceFolder}/PortifyAPI/PortifyAPI",
+            "stopAtEntry": false,
+            "serverReadyAction": {
+                "action": "openExternally",
+                "pattern": "\\bNow listening on:\\s+(https?://\\S+)"
+            },
+            "env": {
+                "ASPNETCORE_ENVIRONMENT": "Development"
+            },
+            "sourceFileMap": {
+                "/Views": "${workspaceFolder}/Views"
+            }
+        },
+        {
+            "name": "Launch PortifyAPI (No Browser)",
+            "type": "coreclr",
+            "request": "launch",
+            "preLaunchTask": "build",
+            "program": "${workspaceFolder}/PortifyAPI/PortifyAPI/bin/Debug/net10.0/PortifyAPI.dll",
+            "args": [],
+            "cwd": "${workspaceFolder}/PortifyAPI/PortifyAPI",
+            "stopAtEntry": false,
+            "env": {
+                "ASPNETCORE_ENVIRONMENT": "Development"
+            },
+            "sourceFileMap": {
+                "/Views": "${workspaceFolder}/Views"
+            }
+        },
+        {
+            "name": "Attach to PortifyAPI",
+            "type": "coreclr",
+            "request": "attach"
+        }
+    ]
+}
