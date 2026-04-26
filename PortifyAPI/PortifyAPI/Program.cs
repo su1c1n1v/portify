@@ -1,22 +1,25 @@
-using System.Net.Http.Headers;
-using System.Text;
 using FastEndpoints;
-using Microsoft.Extensions.Options;
+using PortifyAPI.Features.Positions.GetPositions;
+using PortifyAPI.Features.Shared.Mediator;
 using PortifyAPI.Infrastructure.Trading212;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddFastEndpoints();
-builder.Services.AddHttpClient<ITrading212Client, Trading212Client>((sp, client) =>
-{
-    var options = sp.GetRequiredService<IOptions<Trading212ClientOptions>>().Value;
-    var base64 = Convert.ToBase64String(Encoding.UTF8.GetBytes($"{options.Username}:{options.Password}"));
+builder.Services.Configure<Trading212ClientOptions>(
+    builder.Configuration.GetSection(Trading212ClientOptions.SectionName));
 
-    client.BaseAddress = new Uri(options.Url);
-    client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic", base64);
-    client.DefaultRequestHeaders.Add("Accept", "application/json");
-    client.DefaultRequestHeaders.Add("Authorization", options.Username);
+builder.Services.AddScoped<IRequestHandlerMarker, GetPositionsHandler>();
+builder.Services.AddScoped<IRequestHandlerRegistry, RequestHandlerRegistry>();
+builder.Services.AddScoped<IMediator, Mediator>();
+
+builder.Services.AddScoped<ITrading212Client, Trading212Client>();
+
+builder.Services.ConfigureHttpJsonOptions(options =>
+{
+    options.SerializerOptions.WriteIndented = true;
 });
+
 
 var app = builder.Build();
 

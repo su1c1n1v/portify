@@ -1,16 +1,39 @@
-﻿namespace PortifyAPI.Infrastructure.Trading212;
+﻿using System.Net.Http.Headers;
+using System.Text;
+using System.Text.Json;
+using Microsoft.Extensions.Options;
+using PortifyAPI.Features.Positions.GetPosition;
+
+namespace PortifyAPI.Infrastructure.Trading212;
 
 public interface ITrading212Client
 {
-    Task<string> GetPositionsAsync(CancellationToken ct = default);
+    Task<IEnumerable<Position>> GetPositionsAsync(CancellationToken ct = default);
 }
 
-public class Trading212Client(HttpClient httpClient) : ITrading212Client
+public class Trading212Client : ITrading212Client
 {
-    public async Task<string> GetPositionsAsync(CancellationToken ct = default)
+    private readonly HttpClient _httpClient;
+    public Trading212Client(IOptions<Trading212ClientOptions> options)
     {
-        var response = await httpClient.GetAsync("/equity/positions", ct);
+        var encodedCredentials = Encoding.UTF8.GetBytes($"{options.Value.Username}:{options.Value.Password}");
+        var base64 = Convert.ToBase64String(encodedCredentials);
+
+        _httpClient = new HttpClient
+        {
+            BaseAddress = new Uri(options.Value.Url)
+        };
+
+        _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic", base64);
+    }
+
+    public async Task<IEnumerable<Position>> GetPositionsAsync(CancellationToken ct = default)
+    {
+        var response = await _httpClient.GetAsync("equity/positions", ct);
         response.EnsureSuccessStatusCode();
-        return await response.Content.ReadAsStringAsync(ct);
+
+        var content = await response.Content.ReadAsStringAsync(ct);
+        return JsonSerializer.Deserialize<List<Position>>(
+            content, options: new JsonSerializerOptions { PropertyNameCaseInsensitive = true }) ?? [];
     }
 }

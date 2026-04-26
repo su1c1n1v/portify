@@ -1,18 +1,23 @@
 using FastEndpoints;
-using PortifyAPI.Infrastructure.Trading212;
+using PortifyAPI.Features.Positions.GetPosition;
+using PortifyAPI.Features.Shared.Mediator;
 
 namespace PortifyAPI.Features.Positions.GetPositions;
 
-public class GetPositionsEndpoint(ITrading212Client trading212Client) : EndpointWithoutRequest<string>
+public class GetPositionsEndpoint(IMediator mediator, ILogger<GetPositionsEndpoint> logger) : EndpointWithoutRequest<IEnumerable<Position>>
 {
     public override void Configure()
     {
         Get("/api/positions");
         AllowAnonymous();
     }
+
     public override async Task HandleAsync(CancellationToken ct)
     {
-        var positions = await trading212Client.GetPositionsAsync(ct);
+        var positions = await mediator.Send(new GetPositionsCommand(), ct);
+
+        logger.LogDebug("Retrieved {Count} positions", positions.Count());
+
         await Send.OkAsync(positions, ct);
     }
 }

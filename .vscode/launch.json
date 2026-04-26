@@ -6,7 +6,7 @@
             "type": "coreclr",
             "request": "launch",
             "preLaunchTask": "build",
-            "program": "${workspaceFolder}/PortifyAPI/PortifyAPI/bin/Debug/net10.0/PortifyAPI.dll",
+            "program": "${workspaceFolder}/PortifyAPI/PortifyAPI/bin/Debug/net8.0/PortifyAPI.dll",
             "args": [],
             "cwd": "${workspaceFolder}/PortifyAPI/PortifyAPI",
             "stopAtEntry": false,
@@ -15,7 +15,7 @@
                 "pattern": "\\bNow listening on:\\s+(https?://\\S+)"
             },
             "env": {
-                "ASPNETCORE_ENVIRONMENT": "Development"
+                "ASPNETCORE_ENVIRONMENT": "Local"
             },
             "sourceFileMap": {
                 "/Views": "${workspaceFolder}/Views"
@@ -26,12 +26,12 @@
             "type": "coreclr",
             "request": "launch",
             "preLaunchTask": "build",
-            "program": "${workspaceFolder}/PortifyAPI/PortifyAPI/bin/Debug/net10.0/PortifyAPI.dll",
+            "program": "${workspaceFolder}/PortifyAPI/PortifyAPI/bin/Debug/net8.0/PortifyAPI.dll",
             "args": [],
             "cwd": "${workspaceFolder}/PortifyAPI/PortifyAPI",
             "stopAtEntry": false,
             "env": {
-                "ASPNETCORE_ENVIRONMENT": "Development"
+                "ASPNETCORE_ENVIRONMENT": "Local"
             },
             "sourceFileMap": {
                 "/Views": "${workspaceFolder}/Views"
