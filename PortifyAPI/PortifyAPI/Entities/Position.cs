@@ -1,4 +1,4 @@
-namespace PortifyAPI.Features.Positions.GetPosition;
+namespace PortifyAPI.Entities;
 
 public class Position
 {

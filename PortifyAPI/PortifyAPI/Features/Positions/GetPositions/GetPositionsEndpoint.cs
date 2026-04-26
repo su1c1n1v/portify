@@ -1,10 +1,14 @@
 using FastEndpoints;
-using PortifyAPI.Features.Positions.GetPosition;
+using Microsoft.AspNetCore.Http.HttpResults;
+using PortifyAPI.Entities;
 using PortifyAPI.Features.Shared.Mediator;
+using FluentValidation.Results;
+using PortifyAPI.Features.Shared.Results;
 
 namespace PortifyAPI.Features.Positions.GetPositions;
 
-public class GetPositionsEndpoint(IMediator mediator, ILogger<GetPositionsEndpoint> logger) : EndpointWithoutRequest<IEnumerable<Position>>
+public class GetPositionsEndpoint(IMediator mediator, ILogger<GetPositionsEndpoint> logger) :
+     EndpointWithoutRequest<Results<Ok<IEnumerable<Position>>, NotFound, ProblemDetails>>
 {
     public override void Configure()
     {
@@ -12,12 +16,28 @@ public class GetPositionsEndpoint(IMediator mediator, ILogger<GetPositionsEndpoi
         AllowAnonymous();
     }
 
-    public override async Task HandleAsync(CancellationToken ct)
+    public override async Task<Results<Ok<IEnumerable<Position>>, NotFound, ProblemDetails>> ExecuteAsync(CancellationToken ct)
     {
-        var positions = await mediator.Send(new GetPositionsCommand(), ct);
+        logger.LogInformation("Received request to get all positions");
 
-        logger.LogDebug("Retrieved {Count} positions", positions.Count());
+        var result = await mediator.Send(new GetPositionsCommand(), ct);
 
-        await Send.OkAsync(positions, ct);
+        logger.LogInformation("Finished processing request to get all positions with success: {Success}", result.Success);
+
+        if (!result.Success)
+        {
+            if (result.Error is NotFoundError)
+                return TypedResults.NotFound();
+
+            logger.LogError("Failed to retrieve positions: {ErrorMessage}", result.Error.Message);
+
+            return new ProblemDetails(
+                new List<ValidationFailure>(),
+                "Error retrieving positions",
+                result.Error.Message,
+                result.Error.StatusCode);
+        }
+
+        return TypedResults.Ok(result.Value);
     }
 }
