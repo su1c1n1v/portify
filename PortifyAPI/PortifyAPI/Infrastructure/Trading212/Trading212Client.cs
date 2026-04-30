@@ -9,6 +9,12 @@ namespace PortifyAPI.Infrastructure.Trading212;
 public interface ITrading212Client
 {
     Task<IEnumerable<Position>> GetPositionsAsync(CancellationToken ct = default);
+
+    Task<Account> GetAccountsAsync(CancellationToken ct = default);
+
+    Task<IEnumerable<Pie>> GetPiesAsync(CancellationToken ct = default);
+
+    Task<PieSummary> GetPieByIdAsync(int id, CancellationToken ct = default);
 }
 
 public class Trading212Client : ITrading212Client
@@ -35,5 +41,35 @@ public class Trading212Client : ITrading212Client
         var content = await response.Content.ReadAsStringAsync(ct);
         return JsonSerializer.Deserialize<List<Position>>(
             content, options: new JsonSerializerOptions { PropertyNameCaseInsensitive = true }) ?? [];
+    }
+
+    public async Task<Account> GetAccountsAsync(CancellationToken ct = default)
+    {
+        var response = await _httpClient.GetAsync("equity/account/summary", ct);
+        response.EnsureSuccessStatusCode();
+
+        var content = await response.Content.ReadAsStringAsync(ct);
+        return JsonSerializer.Deserialize<Account>(
+            content, options: new JsonSerializerOptions { PropertyNameCaseInsensitive = true }) ?? new Account();
+    }
+
+    public async Task<IEnumerable<Pie>> GetPiesAsync(CancellationToken ct = default)
+    {
+        var response = await _httpClient.GetAsync("equity/pies", ct);
+        response.EnsureSuccessStatusCode();
+
+        var content = await response.Content.ReadAsStringAsync(ct);
+        return JsonSerializer.Deserialize<List<Pie>>(
+            content, options: new JsonSerializerOptions { PropertyNameCaseInsensitive = true }) ?? [];
+    }
+
+    public async Task<PieSummary> GetPieByIdAsync(int id, CancellationToken ct = default)
+    {
+        var response = await _httpClient.GetAsync($"equity/pies/{id}", ct);
+        response.EnsureSuccessStatusCode();
+
+        var content = await response.Content.ReadAsStringAsync(ct);
+        return JsonSerializer.Deserialize<PieSummary>(
+            content, options: new JsonSerializerOptions { PropertyNameCaseInsensitive = true }) ?? new PieSummary();
     }
 }

@@ -1,4 +1,7 @@
 using FastEndpoints;
+using PortifyAPI.Features.Accounts.GetAccount;
+using PortifyAPI.Features.Pies.GetPieById;
+using PortifyAPI.Features.Pies.GetPies;
 using PortifyAPI.Features.Positions.GetPositions;
 using PortifyAPI.Features.Shared.Mediator;
 using PortifyAPI.Infrastructure.Trading212;
@@ -11,6 +14,9 @@ builder.Services.Configure<Trading212ClientOptions>(
     builder.Configuration.GetSection(Trading212ClientOptions.SectionName));
 
 builder.Services.AddScoped<IRequestHandlerMarker, GetPositionsHandler>();
+builder.Services.AddScoped<IRequestHandlerMarker, GetAccountHandler>();
+builder.Services.AddScoped<IRequestHandlerMarker, GetPieByIdHandler>();
+builder.Services.AddScoped<IRequestHandlerMarker, GetPiesHandler>();
 builder.Services.AddScoped<IRequestHandlerRegistry, RequestHandlerRegistry>();
 builder.Services.AddScoped<IMediator, Mediator>();
 
