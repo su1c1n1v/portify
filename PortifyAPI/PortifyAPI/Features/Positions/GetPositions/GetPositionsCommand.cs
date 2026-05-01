@@ -1,15 +1,16 @@
 using PortifyAPI.Entities;
+using PortifyAPI.Features.Shared.Mapper;
 using PortifyAPI.Features.Shared.Mediator;
 using PortifyAPI.Features.Shared.Results;
 using PortifyAPI.Infrastructure.Trading212;
 
 namespace PortifyAPI.Features.Positions.GetPositions;
 
-public class GetPositionsCommand : IRequest<Result<IEnumerable<Position>>> { }
+public class GetPositionsCommand : IRequest<Result<PositionsSummary>> { }
 
-public class GetPositionsHandler(ITrading212Client trading212Client, ILogger<GetPositionsHandler> logger) : RequestHandlerBase<GetPositionsCommand, Result<IEnumerable<Position>>>
+public class GetPositionsHandler(ITrading212Client trading212Client, ILogger<GetPositionsHandler> logger, IMappingFacade mapping) : RequestHandlerBase<GetPositionsCommand, Result<PositionsSummary>>
 {
-    public override async Task<Result<IEnumerable<Position>>> Handle(GetPositionsCommand request, CancellationToken ct)
+    public override async Task<Result<PositionsSummary>> Handle(GetPositionsCommand request, CancellationToken ct)
     {
         try
         {
@@ -22,7 +23,13 @@ public class GetPositionsHandler(ITrading212Client trading212Client, ILogger<Get
             }
 
             logger.LogDebug("Successfully retrieved {Count} positions", positions.Count());
-            return Result<IEnumerable<Position>>.Ok(positions);
+
+            var positionsSummary = mapping.Map<IEnumerable<Position>, PositionsSummary>(positions);
+
+            positionsSummary.Stocks = [.. positionsSummary.Stocks.OrderByDescending(s => s.Percentage)];
+            positionsSummary.Currencies = [.. positionsSummary.Currencies.OrderByDescending(c => c.Percentage)];
+
+            return Result<PositionsSummary>.Ok(positionsSummary);
         }
         catch (Exception ex)
         {

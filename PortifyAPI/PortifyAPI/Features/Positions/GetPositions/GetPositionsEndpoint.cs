@@ -8,7 +8,7 @@ using PortifyAPI.Features.Shared.Results;
 namespace PortifyAPI.Features.Positions.GetPositions;
 
 public class GetPositionsEndpoint(IMediator mediator, ILogger<GetPositionsEndpoint> logger) :
-     EndpointWithoutRequest<Results<Ok<IEnumerable<Position>>, NotFound, ProblemDetails>>
+     EndpointWithoutRequest<Results<Ok<PositionsSummary>, NotFound, ProblemDetails>>
 {
     public override void Configure()
     {
@@ -16,7 +16,7 @@ public class GetPositionsEndpoint(IMediator mediator, ILogger<GetPositionsEndpoi
         AllowAnonymous();
     }
 
-    public override async Task<Results<Ok<IEnumerable<Position>>, NotFound, ProblemDetails>> ExecuteAsync(CancellationToken ct)
+    public override async Task<Results<Ok<PositionsSummary>, NotFound, ProblemDetails>> ExecuteAsync(CancellationToken ct)
     {
         logger.LogInformation("Received request to get all positions");
 

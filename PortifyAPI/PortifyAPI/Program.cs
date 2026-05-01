@@ -3,6 +3,7 @@ using PortifyAPI.Features.Accounts.GetAccount;
 using PortifyAPI.Features.Pies.GetPieById;
 using PortifyAPI.Features.Pies.GetPies;
 using PortifyAPI.Features.Positions.GetPositions;
+using PortifyAPI.Features.Shared.Mapper;
 using PortifyAPI.Features.Shared.Mediator;
 using PortifyAPI.Infrastructure.Trading212;
 using Serilog;
@@ -21,6 +22,8 @@ builder.Services.AddScoped<IRequestHandlerRegistry, RequestHandlerRegistry>();
 builder.Services.AddScoped<IMediator, Mediator>();
 
 builder.Services.AddScoped<ITrading212Client, Trading212Client>();
+
+builder.Services.RegisterMappings();
 
 Log.Logger = new LoggerConfiguration()
     .ReadFrom.Configuration(builder.Configuration)

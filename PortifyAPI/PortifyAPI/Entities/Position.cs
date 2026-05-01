@@ -28,3 +28,33 @@ public class WalletImpact
     public decimal TotalCost { get; set; }
     public decimal UnrealizedProfitLoss { get; set; }
 }
+
+
+public class PositionsSummary
+{
+    public int TotalStocks { get; set; }
+    public decimal TotalCurrentValue { get; set; }
+    public decimal UnrealizedTotalProfitLoss { get; set; }
+    public IEnumerable<CurrencySummary> Currencies { get; set; } = [];
+    public IEnumerable<StockSummary> Stocks { get; set; } = [];
+}
+
+public class CurrencySummary
+{
+    public string Currency { get; set; } = null!;
+    public int Quantity { get; set; }
+    public decimal Percentage { get; set; }
+}
+
+public class StockSummary
+{
+    public string Name { get; set; } = null!;
+
+    public decimal CurrentValue { get; set; }
+    public decimal Quantity { get; set; }
+    public string Currency { get; set; } = null!;
+    public decimal UnrealizedProfitLoss { get; set; }
+    public decimal UnrealizedProfitLossPercentage { get; set; }
+    public decimal PortfolioProfitLossPercentage { get; set; }
+    public decimal Percentage { get; set; }
+}
