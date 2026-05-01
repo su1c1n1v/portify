@@ -7,14 +7,13 @@ public interface IRequestHandlerRegistry
 
 public sealed class RequestHandlerRegistry(IEnumerable<IRequestHandlerMarker> handlers) : IRequestHandlerRegistry
 {
+    private readonly Dictionary<Type, IRequestHandlerMarker> handlerMap = handlers.ToDictionary(h => h.RequestType, h => h);
+
     public async Task<TResponse> Handle<TResponse>(IRequest<TResponse> request, CancellationToken ct)
     {
-        var matchingRequestHandler = handlers
-            .FirstOrDefault(temp => temp.RequestType == request.GetType());
-
-        if (matchingRequestHandler != null)
+        if (handlerMap.TryGetValue(request.GetType(), out var handler))
         {
-            var result = await matchingRequestHandler.HandleAsync(request, ct);
+            var result = await handler.HandleAsync(request, ct);
             return (TResponse)result;
         }
 
