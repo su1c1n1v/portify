@@ -1,0 +1,1238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Portify — Portfolio Dashboard</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+  <style>
+    :root {
+      --bg:        #0d0f14;
+      --surface:   #161a24;
+      --surface2:  #1e2330;
+      --border:    #2a2f3e;
+      --accent:    #6c63ff;
+      --accent2:   #00c9a7;
+      --red:       #ff5370;
+      --yellow:    #ffd166;
+      --text:      #e2e8f0;
+      --muted:     #7a8399;
+      --radius:    12px;
+      --gap:       20px;
+
+      --pie-tech:  #6c63ff;
+      --pie-health:#00c9a7;
+      --pie-ind:   #ffd166;
+      --pie-etf:   #4fc3f7;
+      --pie-cons:  #ff8a65;
+      --pie-com:   #ba68c8;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      font-size: 14px;
+      display: flex;
+      min-height: 100vh;
+    }
+
+    /* ── Sidebar ─────────────────────────────────────────────────────────── */
+    .sidebar {
+      width: 220px;
+      min-width: 220px;
+      background: var(--surface);
+      border-right: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      padding: 24px 0;
+      position: sticky;
+      top: 0;
+      height: 100vh;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 0 20px 28px;
+      font-size: 20px;
+      font-weight: 700;
+      letter-spacing: -.5px;
+    }
+    .logo-icon {
+      width: 32px; height: 32px;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 16px;
+    }
+
+    .nav-section {
+      padding: 0 12px;
+      margin-bottom: 8px;
+    }
+    .nav-label {
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--muted);
+      padding: 8px 10px 4px;
+    }
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 9px 10px;
+      border-radius: 8px;
+      cursor: pointer;
+      color: var(--muted);
+      transition: background .15s, color .15s;
+      text-decoration: none;
+    }
+    .nav-item:hover, .nav-item.active {
+      background: var(--surface2);
+      color: var(--text);
+    }
+    .nav-item.active { color: var(--accent); }
+    .nav-item svg { flex-shrink: 0; }
+
+    .nav-dot {
+      width: 8px; height: 8px; border-radius: 50%;
+      margin-left: auto; flex-shrink: 0;
+    }
+
+    .sidebar-footer {
+      margin-top: auto;
+      padding: 16px 20px 0;
+      border-top: 1px solid var(--border);
+    }
+    .account-pill {
+      display: flex; align-items: center; gap: 10px;
+    }
+    .avatar {
+      width: 34px; height: 34px; border-radius: 50%;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 700; font-size: 13px;
+    }
+    .account-info { line-height: 1.3; }
+    .account-name { font-weight: 600; font-size: 13px; }
+    .account-tag  { font-size: 11px; color: var(--muted); }
+
+    /* ── Main Layout ─────────────────────────────────────────────────────── */
+    .main {
+      flex: 1;
+      overflow-x: hidden;
+      padding: 28px;
+      display: flex;
+      flex-direction: column;
+      gap: var(--gap);
+    }
+
+    .page-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .page-title {
+      font-size: 22px;
+      font-weight: 700;
+    }
+    .page-subtitle { color: var(--muted); font-size: 13px; margin-top: 2px; }
+
+    .header-actions { display: flex; gap: 10px; }
+    .btn {
+      padding: 8px 16px;
+      border-radius: 8px;
+      border: none;
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: 600;
+      transition: opacity .15s;
+    }
+    .btn:hover { opacity: .85; }
+    .btn-ghost {
+      background: var(--surface2);
+      color: var(--text);
+      border: 1px solid var(--border);
+    }
+    .btn-primary {
+      background: var(--accent);
+      color: #fff;
+    }
+
+    /* ── Stat Cards ──────────────────────────────────────────────────────── */
+    .stat-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: var(--gap);
+    }
+
+    .stat-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 20px;
+    }
+    .stat-label {
+      font-size: 12px;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: .5px;
+      margin-bottom: 8px;
+    }
+    .stat-value {
+      font-size: 26px;
+      font-weight: 700;
+      letter-spacing: -.5px;
+    }
+    .stat-change {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 12px;
+      font-weight: 600;
+      margin-top: 6px;
+      padding: 2px 7px;
+      border-radius: 20px;
+    }
+    .positive { color: var(--accent2); background: rgba(0,201,167,.12); }
+    .negative { color: var(--red);     background: rgba(255,83,112,.12); }
+
+    /* ── Two-column row ──────────────────────────────────────────────────── */
+    .row-2 { display: grid; grid-template-columns: 2fr 1fr; gap: var(--gap); }
+    .row-2-equal { display: grid; grid-template-columns: 1fr 1fr; gap: var(--gap); }
+
+    /* ── Card ────────────────────────────────────────────────────────────── */
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+    .card-title {
+      font-size: 15px;
+      font-weight: 700;
+    }
+    .card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    /* ── Positions Table ─────────────────────────────────────────────────── */
+    .table-controls {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    .search-input {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--text);
+      padding: 7px 12px 7px 34px;
+      font-size: 13px;
+      position: relative;
+      width: 200px;
+      outline: none;
+    }
+    .search-wrapper {
+      position: relative;
+      display: flex;
+      align-items: center;
+    }
+    .search-icon {
+      position: absolute;
+      left: 10px;
+      color: var(--muted);
+      pointer-events: none;
+    }
+    .filter-select {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--text);
+      padding: 7px 12px;
+      font-size: 13px;
+      outline: none;
+      cursor: pointer;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    thead th {
+      padding: 10px 12px;
+      text-align: left;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: .5px;
+      color: var(--muted);
+      background: var(--surface2);
+      border-bottom: 1px solid var(--border);
+      white-space: nowrap;
+      cursor: pointer;
+      user-select: none;
+    }
+    thead th:hover { color: var(--text); }
+    thead th:first-child { border-radius: 8px 0 0 8px; }
+    thead th:last-child  { border-radius: 0 8px 8px 0; }
+    thead th .sort-icon { margin-left: 4px; opacity: .5; }
+    thead th.sorted .sort-icon { opacity: 1; color: var(--accent); }
+
+    tbody tr {
+      border-bottom: 1px solid var(--border);
+      transition: background .12s;
+    }
+    tbody tr:hover { background: var(--surface2); }
+    tbody tr:last-child { border-bottom: none; }
+
+    td { padding: 12px 12px; vertical-align: middle; }
+
+    .ticker-cell { display: flex; align-items: center; gap: 10px; }
+    .ticker-logo {
+      width: 32px; height: 32px;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 700; font-size: 11px; color: var(--accent);
+      flex-shrink: 0;
+    }
+    .ticker-name  { font-weight: 600; font-size: 13px; }
+    .ticker-isin  { font-size: 11px; color: var(--muted); }
+
+    .badge {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 20px;
+      font-size: 11px;
+      font-weight: 600;
+    }
+    .badge-usd  { background: rgba(108,99,255,.15); color: var(--accent); }
+    .badge-eur  { background: rgba(0,201,167,.15);  color: var(--accent2); }
+    .badge-gbp  { background: rgba(255,209,102,.15);color: var(--yellow); }
+    .badge-gbx  { background: rgba(255,138,101,.15);color: var(--pie-cons); }
+
+    .pnl-positive { color: var(--accent2); font-weight: 600; }
+    .pnl-negative { color: var(--red);     font-weight: 600; }
+
+    .bar-wrap {
+      width: 80px; height: 4px;
+      background: var(--border);
+      border-radius: 99px;
+      overflow: hidden;
+    }
+    .bar-fill { height: 100%; border-radius: 99px; background: var(--accent); }
+
+    /* ── Charts ───────────────────────────────────────────────────────────── */
+    .chart-wrap { position: relative; }
+    .chart-wrap canvas { width: 100% !important; }
+
+    /* ── Pies Grid ───────────────────────────────────────────────────────── */
+    .pies-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: var(--gap);
+    }
+
+    .pie-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+    .pie-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .pie-name {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-weight: 700;
+      font-size: 14px;
+    }
+    .pie-dot {
+      width: 10px; height: 10px;
+      border-radius: 50%;
+    }
+    .pie-status {
+      font-size: 11px;
+      font-weight: 600;
+      padding: 2px 8px;
+      border-radius: 20px;
+    }
+    .status-ahead  { background: rgba(0,201,167,.15);  color: var(--accent2); }
+    .status-track  { background: rgba(108,99,255,.15); color: var(--accent); }
+    .status-behind { background: rgba(255,83,112,.15); color: var(--red); }
+
+    .pie-chart-row {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+    .pie-chart-wrap {
+      width: 100px;
+      height: 100px;
+      flex-shrink: 0;
+    }
+    .pie-stats {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .pie-stat-row {
+      display: flex;
+      justify-content: space-between;
+      font-size: 12px;
+    }
+    .pie-stat-label { color: var(--muted); }
+    .pie-stat-value { font-weight: 600; }
+
+    .pie-progress-bar {
+      height: 4px;
+      background: var(--border);
+      border-radius: 99px;
+      overflow: hidden;
+    }
+    .pie-progress-fill {
+      height: 100%;
+      border-radius: 99px;
+      transition: width .3s;
+    }
+
+    .pie-holdings {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .holding-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 12px;
+    }
+    .holding-ticker {
+      display: flex; align-items: center; gap: 6px;
+      color: var(--muted);
+    }
+    .holding-bar {
+      flex: 1;
+      margin: 0 10px;
+      background: var(--border);
+      border-radius: 99px;
+      height: 3px;
+      overflow: hidden;
+    }
+    .holding-bar-fill { height: 100%; border-radius: 99px; }
+    .holding-pct { font-weight: 600; font-size: 11px; }
+
+    /* ── Currency Legend ─────────────────────────────────────────────────── */
+    .currency-legend {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      justify-content: center;
+    }
+    .legend-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 13px;
+    }
+    .legend-dot {
+      width: 10px; height: 10px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+    .legend-label { flex: 1; }
+    .legend-value { font-weight: 600; }
+    .legend-pct   { color: var(--muted); font-size: 11px; width: 36px; text-align: right; }
+
+    /* ── Scrollbar ───────────────────────────────────────────────────────── */
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 99px; }
+
+    /* ── Section Title ───────────────────────────────────────────────────── */
+    .section-title {
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--text);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .section-title::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--border);
+    }
+  </style>
+</head>
+<body>
+
+<!-- ════════════════════════════════════════════════════════════════
+     SIDEBAR
+═════════════════════════════════════════════════════════════════════ -->
+<aside class="sidebar">
+  <div class="logo">
+    <div class="logo-icon">📈</div>
+    Portify
+  </div>
+
+  <div class="nav-section">
+    <div class="nav-label">Overview</div>
+    <a href="#" class="nav-item active">
+      <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+      Dashboard
+    </a>
+    <a href="#" class="nav-item">
+      <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+      Positions
+    </a>
+    <a href="#" class="nav-item">
+      <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+      Returns
+    </a>
+  </div>
+
+  <div class="nav-section">
+    <div class="nav-label">Pies</div>
+    <a href="#" class="nav-item">
+      <span class="nav-dot" style="background:var(--pie-tech)"></span>
+      Technology
+    </a>
+    <a href="#" class="nav-item">
+      <span class="nav-dot" style="background:var(--pie-health)"></span>
+      Health
+    </a>
+    <a href="#" class="nav-item">
+      <span class="nav-dot" style="background:var(--pie-ind)"></span>
+      Industry
+    </a>
+    <a href="#" class="nav-item">
+      <span class="nav-dot" style="background:var(--pie-etf)"></span>
+      ETFs
+    </a>
+    <a href="#" class="nav-item">
+      <span class="nav-dot" style="background:var(--pie-cons)"></span>
+      Consumer
+    </a>
+    <a href="#" class="nav-item">
+      <span class="nav-dot" style="background:var(--pie-com)"></span>
+      Commodities
+    </a>
+  </div>
+
+  <div class="nav-section">
+    <div class="nav-label">Analytics</div>
+    <a href="#" class="nav-item">
+      <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+      Allocation
+    </a>
+    <a href="#" class="nav-item">
+      <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+      Currencies
+    </a>
+    <a href="#" class="nav-item">
+      <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
+      Dividends
+    </a>
+  </div>
+
+  <div class="sidebar-footer">
+    <div class="account-pill">
+      <div class="avatar">VC</div>
+      <div class="account-info">
+        <div class="account-name">Vinicius C.</div>
+        <div class="account-tag">EUR Account</div>
+      </div>
+    </div>
+  </div>
+</aside>
+
+<!-- ════════════════════════════════════════════════════════════════
+     MAIN
+═════════════════════════════════════════════════════════════════════ -->
+<main class="main">
+
+  <!-- Page Header -->
+  <div class="page-header">
+    <div>
+      <div class="page-title">Portfolio Dashboard</div>
+      <div class="page-subtitle">Last updated: May 3, 2026 · 14:32 UTC</div>
+    </div>
+    <div class="header-actions">
+      <button class="btn btn-ghost">↻ Refresh</button>
+      <button class="btn btn-primary">+ New Position</button>
+    </div>
+  </div>
+
+  <!-- ── Stat Cards ── -->
+  <div class="stat-grid">
+    <div class="stat-card">
+      <div class="stat-label">Total Value</div>
+      <div class="stat-value">€24,831.50</div>
+      <span class="stat-change positive">▲ 8.4% all time</span>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Invested</div>
+      <div class="stat-value">€22,900.00</div>
+      <span class="stat-change positive">+€1,931.50 gain</span>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Unrealized P&amp;L</div>
+      <div class="stat-value" style="color: var(--accent2)">+€1,931.50</div>
+      <span class="stat-change positive">▲ +8.43%</span>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Realized P&amp;L</div>
+      <div class="stat-value" style="color: var(--red)">−€142.30</div>
+      <span class="stat-change negative">▼ −0.62%</span>
+    </div>
+  </div>
+
+  <!-- ── Portfolio Trend + Currency Distribution ── -->
+  <div class="row-2">
+
+    <!-- Trend Chart -->
+    <div class="card">
+      <div class="card-header">
+        <span class="card-title">Portfolio Value Over Time</span>
+        <div style="display:flex;gap:6px">
+          <button class="btn btn-ghost" style="padding:4px 10px;font-size:11px">1W</button>
+          <button class="btn btn-primary" style="padding:4px 10px;font-size:11px">1M</button>
+          <button class="btn btn-ghost" style="padding:4px 10px;font-size:11px">3M</button>
+          <button class="btn btn-ghost" style="padding:4px 10px;font-size:11px">1Y</button>
+          <button class="btn btn-ghost" style="padding:4px 10px;font-size:11px">All</button>
+        </div>
+      </div>
+      <div class="chart-wrap" style="height:200px">
+        <canvas id="trendChart"></canvas>
+      </div>
+    </div>
+
+    <!-- Currency Donut -->
+    <div class="card">
+      <div class="card-header">
+        <span class="card-title">Currency Exposure</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:20px">
+        <div class="chart-wrap" style="width:130px;height:130px;flex-shrink:0">
+          <canvas id="currencyChart"></canvas>
+        </div>
+        <div class="currency-legend">
+          <div class="legend-row">
+            <span class="legend-dot" style="background:#6c63ff"></span>
+            <span class="legend-label">USD</span>
+            <span class="legend-value">€13,420</span>
+            <span class="legend-pct">54%</span>
+          </div>
+          <div class="legend-row">
+            <span class="legend-dot" style="background:#00c9a7"></span>
+            <span class="legend-label">EUR</span>
+            <span class="legend-value">€7,050</span>
+            <span class="legend-pct">28%</span>
+          </div>
+          <div class="legend-row">
+            <span class="legend-dot" style="background:#ffd166"></span>
+            <span class="legend-label">GBP</span>
+            <span class="legend-value">€3,116</span>
+            <span class="legend-pct">13%</span>
+          </div>
+          <div class="legend-row">
+            <span class="legend-dot" style="background:#ff8a65"></span>
+            <span class="legend-label">GBX</span>
+            <span class="legend-value">€1,245</span>
+            <span class="legend-pct">5%</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Positions Chart + Allocation ── -->
+  <div class="row-2-equal">
+
+    <!-- Positions Bar Chart -->
+    <div class="card">
+      <div class="card-header">
+        <span class="card-title">Top Positions by Value</span>
+      </div>
+      <div class="chart-wrap" style="height:220px">
+        <canvas id="positionsChart"></canvas>
+      </div>
+    </div>
+
+    <!-- P&L Bar Chart -->
+    <div class="card">
+      <div class="card-header">
+        <span class="card-title">Unrealized P&amp;L by Position</span>
+      </div>
+      <div class="chart-wrap" style="height:220px">
+        <canvas id="pnlChart"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Stocks Table ── -->
+  <div class="card">
+    <div class="card-header">
+      <span class="card-title">All Positions</span>
+      <div class="table-controls">
+        <div class="search-wrapper">
+          <svg class="search-icon" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <input type="text" class="search-input" placeholder="Search ticker or name…" />
+        </div>
+        <select class="filter-select">
+          <option>All Currencies</option>
+          <option>USD</option>
+          <option>EUR</option>
+          <option>GBP</option>
+          <option>GBX</option>
+        </select>
+        <select class="filter-select">
+          <option>All Pies</option>
+          <option>Technology</option>
+          <option>Health</option>
+          <option>Industry</option>
+          <option>ETFs</option>
+          <option>Consumer</option>
+          <option>Commodities</option>
+        </select>
+        <select class="filter-select">
+          <option>P&L: All</option>
+          <option>Positive only</option>
+          <option>Negative only</option>
+        </select>
+      </div>
+    </div>
+
+    <div style="overflow-x:auto">
+      <table>
+        <thead>
+          <tr>
+            <th>Stock <span class="sort-icon">↕</span></th>
+            <th class="sorted">Value <span class="sort-icon" style="color:var(--accent)">↓</span></th>
+            <th>Qty <span class="sort-icon">↕</span></th>
+            <th>Avg Price <span class="sort-icon">↕</span></th>
+            <th>Curr Price <span class="sort-icon">↕</span></th>
+            <th>Currency <span class="sort-icon">↕</span></th>
+            <th>Unreal. P&amp;L <span class="sort-icon">↕</span></th>
+            <th>P&amp;L % <span class="sort-icon">↕</span></th>
+            <th>Portfolio % <span class="sort-icon">↕</span></th>
+            <th>Pie</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- Row macro: stock, value, qty, avg, curr, currency, pnl, pnlPct, pf%, pie, color -->
+          <tr>
+            <td><div class="ticker-cell">
+              <div class="ticker-logo">AAPL</div>
+              <div><div class="ticker-name">Apple Inc.</div><div class="ticker-isin">US0378331005</div></div>
+            </div></td>
+            <td>€3,241.00</td>
+            <td>15.00</td>
+            <td>$182.40</td>
+            <td>$215.70</td>
+            <td><span class="badge badge-usd">USD</span></td>
+            <td class="pnl-positive">+€498.80</td>
+            <td class="pnl-positive">+18.2%</td>
+            <td><div style="display:flex;align-items:center;gap:8px">13.0%<div class="bar-wrap"><div class="bar-fill" style="width:13%"></div></div></div></td>
+            <td><span class="badge badge-usd" style="background:rgba(108,99,255,.1)">Technology</span></td>
+          </tr>
+          <tr>
+            <td><div class="ticker-cell">
+              <div class="ticker-logo">MSFT</div>
+              <div><div class="ticker-name">Microsoft Corp.</div><div class="ticker-isin">US5949181045</div></div>
+            </div></td>
+            <td>€2,880.60</td>
+            <td>8.00</td>
+            <td>$308.50</td>
+            <td>$360.08</td>
+            <td><span class="badge badge-usd">USD</span></td>
+            <td class="pnl-positive">+€413.10</td>
+            <td class="pnl-positive">+16.7%</td>
+            <td><div style="display:flex;align-items:center;gap:8px">11.6%<div class="bar-wrap"><div class="bar-fill" style="width:11.6%"></div></div></div></td>
+            <td><span class="badge badge-usd" style="background:rgba(108,99,255,.1)">Technology</span></td>
+          </tr>
+          <tr>
+            <td><div class="ticker-cell">
+              <div class="ticker-logo">NVDA</div>
+              <div><div class="ticker-name">NVIDIA Corp.</div><div class="ticker-isin">US67066G1040</div></div>
+            </div></td>
+            <td>€2,541.20</td>
+            <td>20.00</td>
+            <td>$104.20</td>
+            <td>$127.06</td>
+            <td><span class="badge badge-usd">USD</span></td>
+            <td class="pnl-positive">+€457.30</td>
+            <td class="pnl-positive">+21.9%</td>
+            <td><div style="display:flex;align-items:center;gap:8px">10.2%<div class="bar-wrap"><div class="bar-fill" style="width:10.2%"></div></div></div></td>
+            <td><span class="badge badge-usd" style="background:rgba(108,99,255,.1)">Technology</span></td>
+          </tr>
+          <tr>
+            <td><div class="ticker-cell">
+              <div class="ticker-logo">VWRL</div>
+              <div><div class="ticker-name">Vanguard FTSE All-World</div><div class="ticker-isin">IE00B3RBWM25</div></div>
+            </div></td>
+            <td>€2,210.00</td>
+            <td>25.00</td>
+            <td>£78.20</td>
+            <td>£88.40</td>
+            <td><span class="badge badge-gbp">GBP</span></td>
+            <td class="pnl-positive">+€255.00</td>
+            <td class="pnl-positive">+13.0%</td>
+            <td><div style="display:flex;align-items:center;gap:8px">8.9%<div class="bar-wrap"><div class="bar-fill" style="width:8.9%"></div></div></div></td>
+            <td><span class="badge badge-eur" style="background:rgba(79,195,247,.1);color:#4fc3f7">ETFs</span></td>
+          </tr>
+          <tr>
+            <td><div class="ticker-cell">
+              <div class="ticker-logo">JNJ</div>
+              <div><div class="ticker-name">Johnson &amp; Johnson</div><div class="ticker-isin">US4781601046</div></div>
+            </div></td>
+            <td>€1,980.40</td>
+            <td>12.00</td>
+            <td>$148.90</td>
+            <td>$165.03</td>
+            <td><span class="badge badge-usd">USD</span></td>
+            <td class="pnl-positive">+€193.60</td>
+            <td class="pnl-positive">+10.8%</td>
+            <td><div style="display:flex;align-items:center;gap:8px">8.0%<div class="bar-wrap"><div class="bar-fill" style="width:8%"></div></div></div></td>
+            <td><span class="badge" style="background:rgba(0,201,167,.1);color:var(--accent2)">Health</span></td>
+          </tr>
+          <tr>
+            <td><div class="ticker-cell">
+              <div class="ticker-logo">BP</div>
+              <div><div class="ticker-name">BP p.l.c.</div><div class="ticker-isin">GB0007980591</div></div>
+            </div></td>
+            <td>€1,650.80</td>
+            <td>400.00</td>
+            <td>425p</td>
+            <td>412p</td>
+            <td><span class="badge badge-gbx">GBX</span></td>
+            <td class="pnl-negative">−€52.00</td>
+            <td class="pnl-negative">−3.1%</td>
+            <td><div style="display:flex;align-items:center;gap:8px">6.6%<div class="bar-wrap"><div class="bar-fill" style="width:6.6%;background:var(--red)"></div></div></div></td>
+            <td><span class="badge" style="background:rgba(186,104,200,.1);color:var(--pie-com)">Commodities</span></td>
+          </tr>
+          <tr>
+            <td><div class="ticker-cell">
+              <div class="ticker-logo">AMZN</div>
+              <div><div class="ticker-name">Amazon.com Inc.</div><div class="ticker-isin">US0231351067</div></div>
+            </div></td>
+            <td>€1,530.20</td>
+            <td>9.00</td>
+            <td>$152.10</td>
+            <td>$170.02</td>
+            <td><span class="badge badge-usd">USD</span></td>
+            <td class="pnl-positive">+€161.10</td>
+            <td class="pnl-positive">+11.8%</td>
+            <td><div style="display:flex;align-items:center;gap:8px">6.2%<div class="bar-wrap"><div class="bar-fill" style="width:6.2%"></div></div></div></td>
+            <td><span class="badge" style="background:rgba(255,138,101,.1);color:var(--pie-cons)">Consumer</span></td>
+          </tr>
+          <tr>
+            <td><div class="ticker-cell">
+              <div class="ticker-logo">SIE</div>
+              <div><div class="ticker-name">Siemens AG</div><div class="ticker-isin">DE0007236101</div></div>
+            </div></td>
+            <td>€1,324.50</td>
+            <td>7.00</td>
+            <td>€172.00</td>
+            <td>€189.21</td>
+            <td><span class="badge badge-eur">EUR</span></td>
+            <td class="pnl-positive">+€120.50</td>
+            <td class="pnl-positive">+10.0%</td>
+            <td><div style="display:flex;align-items:center;gap:8px">5.3%<div class="bar-wrap"><div class="bar-fill" style="width:5.3%;background:var(--yellow)"></div></div></div></td>
+            <td><span class="badge" style="background:rgba(255,209,102,.1);color:var(--yellow)">Industry</span></td>
+          </tr>
+          <tr>
+            <td><div class="ticker-cell">
+              <div class="ticker-logo">UNH</div>
+              <div><div class="ticker-name">UnitedHealth Group</div><div class="ticker-isin">US91324P1021</div></div>
+            </div></td>
+            <td>€1,210.00</td>
+            <td>3.00</td>
+            <td>$360.00</td>
+            <td>$403.33</td>
+            <td><span class="badge badge-usd">USD</span></td>
+            <td class="pnl-positive">+€130.00</td>
+            <td class="pnl-positive">+12.0%</td>
+            <td><div style="display:flex;align-items:center;gap:8px">4.9%<div class="bar-wrap"><div class="bar-fill" style="width:4.9%"></div></div></div></td>
+            <td><span class="badge" style="background:rgba(0,201,167,.1);color:var(--accent2)">Health</span></td>
+          </tr>
+          <tr>
+            <td><div class="ticker-cell">
+              <div class="ticker-logo">GOLD</div>
+              <div><div class="ticker-name">Barrick Gold Corp.</div><div class="ticker-isin">CA0679011084</div></div>
+            </div></td>
+            <td>€980.30</td>
+            <td>55.00</td>
+            <td>$15.80</td>
+            <td>$17.82</td>
+            <td><span class="badge badge-usd">USD</span></td>
+            <td class="pnl-positive">+€111.10</td>
+            <td class="pnl-positive">+12.8%</td>
+            <td><div style="display:flex;align-items:center;gap:8px">3.9%<div class="bar-wrap"><div class="bar-fill" style="width:3.9%;background:var(--pie-com)"></div></div></div></td>
+            <td><span class="badge" style="background:rgba(186,104,200,.1);color:var(--pie-com)">Commodities</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div style="display:flex;justify-content:space-between;align-items:center;color:var(--muted);font-size:12px">
+      <span>Showing 10 of 38 positions</span>
+      <div style="display:flex;gap:6px">
+        <button class="btn btn-ghost" style="padding:4px 10px;font-size:12px">← Prev</button>
+        <button class="btn btn-ghost" style="padding:4px 10px;font-size:12px;background:var(--accent);color:#fff;border-color:var(--accent)">1</button>
+        <button class="btn btn-ghost" style="padding:4px 10px;font-size:12px">2</button>
+        <button class="btn btn-ghost" style="padding:4px 10px;font-size:12px">3</button>
+        <button class="btn btn-ghost" style="padding:4px 10px;font-size:12px">Next →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Pies Section ── -->
+  <div class="section-title">My Pies</div>
+
+  <div class="pies-grid">
+
+    <!-- Technology Pie -->
+    <div class="pie-card">
+      <div class="pie-header">
+        <div class="pie-name"><span class="pie-dot" style="background:var(--pie-tech)"></span>Technology</div>
+        <span class="pie-status status-ahead">AHEAD</span>
+      </div>
+      <div class="pie-chart-row">
+        <div class="pie-chart-wrap"><canvas id="pieTech"></canvas></div>
+        <div class="pie-stats">
+          <div class="pie-stat-row"><span class="pie-stat-label">Invested</span><span class="pie-stat-value">€8,662</span></div>
+          <div class="pie-stat-row"><span class="pie-stat-label">Value</span><span class="pie-stat-value">€9,920</span></div>
+          <div class="pie-stat-row"><span class="pie-stat-label">Return</span><span class="pie-stat-value pnl-positive">+14.5%</span></div>
+          <div class="pie-stat-row"><span class="pie-stat-label">Dividend</span><span class="pie-stat-value">€42.10</span></div>
+        </div>
+      </div>
+      <div>
+        <div style="font-size:11px;color:var(--muted);margin-bottom:6px">Goal Progress — 87%</div>
+        <div class="pie-progress-bar"><div class="pie-progress-fill" style="width:87%;background:var(--pie-tech)"></div></div>
+      </div>
+      <div class="pie-holdings">
+        <div class="holding-row"><span class="holding-ticker">AAPL</span><div class="holding-bar"><div class="holding-bar-fill" style="width:34%;background:var(--pie-tech)"></div></div><span class="holding-pct">34%</span></div>
+        <div class="holding-row"><span class="holding-ticker">MSFT</span><div class="holding-bar"><div class="holding-bar-fill" style="width:29%;background:var(--pie-tech)"></div></div><span class="holding-pct">29%</span></div>
+        <div class="holding-row"><span class="holding-ticker">NVDA</span><div class="holding-bar"><div class="holding-bar-fill" style="width:26%;background:var(--pie-tech)"></div></div><span class="holding-pct">26%</span></div>
+        <div class="holding-row"><span class="holding-ticker">Other</span><div class="holding-bar"><div class="holding-bar-fill" style="width:11%;background:var(--border)"></div></div><span class="holding-pct">11%</span></div>
+      </div>
+    </div>
+
+    <!-- Health Pie -->
+    <div class="pie-card">
+      <div class="pie-header">
+        <div class="pie-name"><span class="pie-dot" style="background:var(--pie-health)"></span>Health</div>
+        <span class="pie-status status-track">ON TRACK</span>
+      </div>
+      <div class="pie-chart-row">
+        <div class="pie-chart-wrap"><canvas id="pieHealth"></canvas></div>
+        <div class="pie-stats">
+          <div class="pie-stat-row"><span class="pie-stat-label">Invested</span><span class="pie-stat-value">€3,040</span></div>
+          <div class="pie-stat-row"><span class="pie-stat-label">Value</span><span class="pie-stat-value">€3,190</span></div>
+          <div class="pie-stat-row"><span class="pie-stat-label">Return</span><span class="pie-stat-value pnl-positive">+4.9%</span></div>
+          <div class="pie-stat-row"><span class="pie-stat-label">Dividend</span><span class="pie-stat-value">€88.40</span></div>
+        </div>
+      </div>
+      <div>
+        <div style="font-size:11px;color:var(--muted);margin-bottom:6px">Goal Progress — 64%</div>
+        <div class="pie-progress-bar"><div class="pie-progress-fill" style="width:64%;background:var(--pie-health)"></div></div>
+      </div>
+      <div class="pie-holdings">
+        <div class="holding-row"><span class="holding-ticker">JNJ</span><div class="holding-bar"><div class="holding-bar-fill" style="width:62%;background:var(--pie-health)"></div></div><span class="holding-pct">62%</span></div>
+        <div class="holding-row"><span class="holding-ticker">UNH</span><div class="holding-bar"><div class="holding-bar-fill" style="width:38%;background:var(--pie-health)"></div></div><span class="holding-pct">38%</span></div>
+      </div>
+    </div>
+
+    <!-- Industry Pie -->
+    <div class="pie-card">
+      <div class="pie-header">
+        <div class="pie-name"><span class="pie-dot" style="background:var(--pie-ind)"></span>Industry</div>
+        <span class="pie-status status-track">ON TRACK</span>
+      </div>
+      <div class="pie-chart-row">
+        <div class="pie-chart-wrap"><canvas id="pieInd"></canvas></div>
+        <div class="pie-stats">
+          <div class="pie-stat-row"><span class="pie-stat-label">Invested</span><span class="pie-stat-value">€2,100</span></div>
+          <div class="pie-stat-row"><span class="pie-stat-label">Value</span><span class="pie-stat-value">€2,310</span></div>
+          <div class="pie-stat-row"><span class="pie-stat-label">Return</span><span class="pie-stat-value pnl-positive">+10.0%</span></div>
+          <div class="pie-stat-row"><span class="pie-stat-label">Dividend</span><span class="pie-stat-value">€31.00</span></div>
+        </div>
+      </div>
+      <div>
+        <div style="font-size:11px;color:var(--muted);margin-bottom:6px">Goal Progress — 58%</div>
+        <div class="pie-progress-bar"><div class="pie-progress-fill" style="width:58%;background:var(--pie-ind)"></div></div>
+      </div>
+      <div class="pie-holdings">
+        <div class="holding-row"><span class="holding-ticker">SIE</span><div class="holding-bar"><div class="holding-bar-fill" style="width:57%;background:var(--pie-ind)"></div></div><span class="holding-pct">57%</span></div>
+        <div class="holding-row"><span class="holding-ticker">CAT</span><div class="holding-bar"><div class="holding-bar-fill" style="width:26%;background:var(--pie-ind)"></div></div><span class="holding-pct">26%</span></div>
+        <div class="holding-row"><span class="holding-ticker">HON</span><div class="holding-bar"><div class="holding-bar-fill" style="width:17%;background:var(--pie-ind)"></div></div><span class="holding-pct">17%</span></div>
+      </div>
+    </div>
+
+    <!-- ETFs Pie -->
+    <div class="pie-card">
+      <div class="pie-header">
+        <div class="pie-name"><span class="pie-dot" style="background:var(--pie-etf)"></span>ETFs</div>
+        <span class="pie-status status-ahead">AHEAD</span>
+      </div>
+      <div class="pie-chart-row">
+        <div class="pie-chart-wrap"><canvas id="pieEtf"></canvas></div>
+        <div class="pie-stats">
+          <div class="pie-stat-row"><span class="pie-stat-label">Invested</span><span class="pie-stat-value">€3,800</span></div>
+          <div class="pie-stat-row"><span class="pie-stat-label">Value</span><span class="pie-stat-value">€4,300</span></div>
+          <div class="pie-stat-row"><span class="pie-stat-label">Return</span><span class="pie-stat-value pnl-positive">+13.2%</span></div>
+          <div class="pie-stat-row"><span class="pie-stat-label">Dividend</span><span class="pie-stat-value">€120.00</span></div>
+        </div>
+      </div>
+      <div>
+        <div style="font-size:11px;color:var(--muted);margin-bottom:6px">Goal Progress — 75%</div>
+        <div class="pie-progress-bar"><div class="pie-progress-fill" style="width:75%;background:var(--pie-etf)"></div></div>
+      </div>
+      <div class="pie-holdings">
+        <div class="holding-row"><span class="holding-ticker">VWRL</span><div class="holding-bar"><div class="holding-bar-fill" style="width:51%;background:var(--pie-etf)"></div></div><span class="holding-pct">51%</span></div>
+        <div class="holding-row"><span class="holding-ticker">CSPX</span><div class="holding-bar"><div class="holding-bar-fill" style="width:32%;background:var(--pie-etf)"></div></div><span class="holding-pct">32%</span></div>
+        <div class="holding-row"><span class="holding-ticker">IEMA</span><div class="holding-bar"><div class="holding-bar-fill" style="width:17%;background:var(--pie-etf)"></div></div><span class="holding-pct">17%</span></div>
+      </div>
+    </div>
+
+    <!-- Consumer Pie -->
+    <div class="pie-card">
+      <div class="pie-header">
+        <div class="pie-name"><span class="pie-dot" style="background:var(--pie-cons)"></span>Consumer</div>
+        <span class="pie-status status-behind">BEHIND</span>
+      </div>
+      <div class="pie-chart-row">
+        <div class="pie-chart-wrap"><canvas id="pieCons"></canvas></div>
+        <div class="pie-stats">
+          <div class="pie-stat-row"><span class="pie-stat-label">Invested</span><span class="pie-stat-value">€2,200</span></div>
+          <div class="pie-stat-row"><span class="pie-stat-label">Value</span><span class="pie-stat-value">€2,310</span></div>
+          <div class="pie-stat-row"><span class="pie-stat-label">Return</span><span class="pie-stat-value pnl-positive">+5.0%</span></div>
+          <div class="pie-stat-row"><span class="pie-stat-label">Dividend</span><span class="pie-stat-value">€14.80</span></div>
+        </div>
+      </div>
+      <div>
+        <div style="font-size:11px;color:var(--muted);margin-bottom:6px">Goal Progress — 42%</div>
+        <div class="pie-progress-bar"><div class="pie-progress-fill" style="width:42%;background:var(--pie-cons)"></div></div>
+      </div>
+      <div class="pie-holdings">
+        <div class="holding-row"><span class="holding-ticker">AMZN</span><div class="holding-bar"><div class="holding-bar-fill" style="width:66%;background:var(--pie-cons)"></div></div><span class="holding-pct">66%</span></div>
+        <div class="holding-row"><span class="holding-ticker">PG</span><div class="holding-bar"><div class="holding-bar-fill" style="width:20%;background:var(--pie-cons)"></div></div><span class="holding-pct">20%</span></div>
+        <div class="holding-row"><span class="holding-ticker">COST</span><div class="holding-bar"><div class="holding-bar-fill" style="width:14%;background:var(--pie-cons)"></div></div><span class="holding-pct">14%</span></div>
+      </div>
+    </div>
+
+    <!-- Commodities Pie -->
+    <div class="pie-card">
+      <div class="pie-header">
+        <div class="pie-name"><span class="pie-dot" style="background:var(--pie-com)"></span>Commodities</div>
+        <span class="pie-status status-track">ON TRACK</span>
+      </div>
+      <div class="pie-chart-row">
+        <div class="pie-chart-wrap"><canvas id="pieCom"></canvas></div>
+        <div class="pie-stats">
+          <div class="pie-stat-row"><span class="pie-stat-label">Invested</span><span class="pie-stat-value">€2,900</span></div>
+          <div class="pie-stat-row"><span class="pie-stat-label">Value</span><span class="pie-stat-value">€2,800</span></div>
+          <div class="pie-stat-row"><span class="pie-stat-label">Return</span><span class="pie-stat-value pnl-negative">−3.4%</span></div>
+          <div class="pie-stat-row"><span class="pie-stat-label">Dividend</span><span class="pie-stat-value">€55.20</span></div>
+        </div>
+      </div>
+      <div>
+        <div style="font-size:11px;color:var(--muted);margin-bottom:6px">Goal Progress — 70%</div>
+        <div class="pie-progress-bar"><div class="pie-progress-fill" style="width:70%;background:var(--pie-com)"></div></div>
+      </div>
+      <div class="pie-holdings">
+        <div class="holding-row"><span class="holding-ticker">BP</span><div class="holding-bar"><div class="holding-bar-fill" style="width:59%;background:var(--pie-com)"></div></div><span class="holding-pct">59%</span></div>
+        <div class="holding-row"><span class="holding-ticker">GOLD</span><div class="holding-bar"><div class="holding-bar-fill" style="width:35%;background:var(--pie-com)"></div></div><span class="holding-pct">35%</span></div>
+        <div class="holding-row"><span class="holding-ticker">RIO</span><div class="holding-bar"><div class="holding-bar-fill" style="width:6%;background:var(--pie-com)"></div></div><span class="holding-pct">6%</span></div>
+      </div>
+    </div>
+
+  </div><!-- end pies-grid -->
+
+</main>
+
+<!-- ════════════════════════════════════════════════════════════════
+     CHARTS JS
+═════════════════════════════════════════════════════════════════════ -->
+<script>
+Chart.defaults.color = '#7a8399';
+Chart.defaults.borderColor = '#2a2f3e';
+Chart.defaults.font.family = "'Segoe UI', system-ui, sans-serif";
+Chart.defaults.font.size = 11;
+
+const ACCENT  = '#6c63ff';
+const GREEN   = '#00c9a7';
+const RED     = '#ff5370';
+const YELLOW  = '#ffd166';
+const ORANGE  = '#ff8a65';
+const BLUE    = '#4fc3f7';
+const PURPLE  = '#ba68c8';
+
+// ── Portfolio Trend ──────────────────────────────────────────────
+const months = ['Dec','Jan','Feb','Mar','Apr','May'];
+const values = [21200, 21800, 22300, 22900, 23600, 24831];
+new Chart(document.getElementById('trendChart'), {
+  type: 'line',
+  data: {
+    labels: months,
+    datasets: [{
+      label: 'Portfolio Value (€)',
+      data: values,
+      borderColor: ACCENT,
+      backgroundColor: (ctx) => {
+        const g = ctx.chart.ctx.createLinearGradient(0,0,0,200);
+        g.addColorStop(0,'rgba(108,99,255,0.3)');
+        g.addColorStop(1,'rgba(108,99,255,0)');
+        return g;
+      },
+      borderWidth: 2.5,
+      pointRadius: 4,
+      pointBackgroundColor: ACCENT,
+      tension: 0.4,
+      fill: true,
+    }]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    plugins: { legend: { display: false }, tooltip: { mode: 'index', intersect: false } },
+    scales: {
+      x: { grid: { display: false } },
+      y: {
+        ticks: { callback: v => '€' + v.toLocaleString() },
+        grid: { color: '#2a2f3e' }
+      }
+    }
+  }
+});
+
+// ── Currency Donut ───────────────────────────────────────────────
+new Chart(document.getElementById('currencyChart'), {
+  type: 'doughnut',
+  data: {
+    labels: ['USD','EUR','GBP','GBX'],
+    datasets: [{
+      data: [54, 28, 13, 5],
+      backgroundColor: [ACCENT, GREEN, YELLOW, ORANGE],
+      borderWidth: 0,
+      hoverOffset: 6
+    }]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    cutout: '68%',
+    plugins: {
+      legend: { display: false },
+      tooltip: { callbacks: { label: ctx => ` ${ctx.label}: ${ctx.parsed}%` } }
+    }
+  }
+});
+
+// ── Top Positions Bar ────────────────────────────────────────────
+new Chart(document.getElementById('positionsChart'), {
+  type: 'bar',
+  data: {
+    labels: ['AAPL','MSFT','NVDA','VWRL','JNJ','BP','AMZN','SIE'],
+    datasets: [{
+      label: 'Value (€)',
+      data: [3241, 2880, 2541, 2210, 1980, 1650, 1530, 1324],
+      backgroundColor: [
+        ACCENT, ACCENT, ACCENT, BLUE, GREEN, PURPLE, ORANGE, YELLOW
+      ],
+      borderRadius: 6,
+      borderSkipped: false
+    }]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    indexAxis: 'y',
+    plugins: { legend: { display: false } },
+    scales: {
+      x: {
+        grid: { color: '#2a2f3e' },
+        ticks: { callback: v => '€' + v.toLocaleString() }
+      },
+      y: { grid: { display: false } }
+    }
+  }
+});
+
+// ── P&L Bar Chart ────────────────────────────────────────────────
+new Chart(document.getElementById('pnlChart'), {
+  type: 'bar',
+  data: {
+    labels: ['NVDA','AAPL','MSFT','GOLD','UNH','VWRL','AMZN','SIE','JNJ','BP'],
+    datasets: [{
+      label: 'Unrealized P&L (€)',
+      data: [457, 498, 413, 111, 130, 255, 161, 120, 193, -52],
+      backgroundColor: (ctx) => ctx.raw >= 0 ? GREEN : RED,
+      borderRadius: 5,
+      borderSkipped: false
+    }]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    plugins: { legend: { display: false } },
+    scales: {
+      x: { grid: { display: false } },
+      y: {
+        grid: { color: '#2a2f3e' },
+        ticks: { callback: v => (v >= 0 ? '+' : '') + '€' + v }
+      }
+    }
+  }
+});
+
+// ── Pie Mini-Donuts ──────────────────────────────────────────────
+function miniDoughnut(id, data, colors) {
+  new Chart(document.getElementById(id), {
+    type: 'doughnut',
+    data: {
+      datasets: [{
+        data,
+        backgroundColor: colors,
+        borderWidth: 0,
+        hoverOffset: 4
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      cutout: '60%',
+      plugins: { legend: { display: false }, tooltip: { enabled: false } }
+    }
+  });
+}
+
+miniDoughnut('pieTech',   [34,29,26,11], [ACCENT, '#8a83ff','#b0abff','#2a2f3e']);
+miniDoughnut('pieHealth', [62, 38],       [GREEN, '#80e8d3']);
+miniDoughnut('pieInd',    [57,26,17],     [YELLOW,'#ffe499','#fff3cc']);
+miniDoughnut('pieEtf',    [51,32,17],     [BLUE,'#8ddff9','#cdf0fd']);
+miniDoughnut('pieCons',   [66,20,14],     [ORANGE,'#ffb299','#ffe5d9']);
+miniDoughnut('pieCom',    [59,35,6],      [PURPLE,'#d4a0e0','#edd1f5']);
+</script>
+
+</body>
+</html>
