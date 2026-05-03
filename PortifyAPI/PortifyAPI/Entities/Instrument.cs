@@ -1,8 +1,14 @@
 namespace PortifyAPI.Entities;
 
-public class PieSummary
+public class PieDetails
 {
     public List<InstrumentDetails> Instruments { get; set; } = null!;
+    public Settings Settings { get; set; } = null!;
+}
+
+public class PiePosition
+{
+    public List<StockSummary> Instruments { get; set; } = null!;
     public Settings Settings { get; set; } = null!;
 }
 
@@ -18,6 +24,16 @@ public class Settings
     public decimal? InitialInvestment { get; set; }
     public Dictionary<string, decimal> InstrumentShares { get; set; } = [];
     public string? PublicUrl { get; set; }
+}
+
+public class SettingSummary
+{
+    public int Id { get; set; }
+    public string Name { get; set; } = null!;
+    public decimal? CreationDate { get; set; }
+    public decimal CurrentValue { get; set; }
+    public decimal Percentage { get; set; }
+    public string DividendCashAction { get; set; } = null!;
 }
 
 public class InstrumentDetails
@@ -36,3 +52,9 @@ public class Issue
     public string Severity { get; set; } = null!;
 }
 
+
+public class PieSummary
+{
+    public SettingSummary Settings { get; set; } = null!;
+    public IEnumerable<StockSummary> Stocks { get; set; } = [];
+}

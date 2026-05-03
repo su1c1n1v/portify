@@ -8,6 +8,7 @@ public static class MapperModule
     public static IServiceCollection RegisterMappings(this IServiceCollection services)
     {
         services.AddScoped<IMapper, PositionsToPositionsSummary>();
+        services.AddScoped<IMapper, PiePositionToPieSummary>();
         services.AddSingleton<IMappingFacade, MappingFacade>();
 
         return services;

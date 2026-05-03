@@ -15,6 +15,7 @@ public class GetPositionsHandler(ITrading212Client trading212Client, ILogger<Get
         try
         {
             var positions = await trading212Client.GetPositionsAsync(ct);
+            var pies = await trading212Client.GetPiesAsync(ct);
 
             if (positions == null)
             {

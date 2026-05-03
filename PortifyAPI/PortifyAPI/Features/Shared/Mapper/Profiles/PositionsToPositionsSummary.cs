@@ -29,6 +29,7 @@ public class PositionsToPositionsSummary : IMapper<IEnumerable<Position>, Positi
                 .Select(g => new StockSummary
                 {
                     Name = g.Instrument.Name,
+                    Ticker = g.Instrument.Ticker,
                     Quantity = g.Quantity,
                     CurrentValue = g.WalletImpact.CurrentValue,
                     Currency = g.Instrument.Currency,

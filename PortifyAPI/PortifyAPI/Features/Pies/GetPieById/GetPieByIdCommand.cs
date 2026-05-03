@@ -5,14 +5,14 @@ using PortifyAPI.Infrastructure.Trading212;
 
 namespace PortifyAPI.Features.Pies.GetPieById;
 
-public class GetPieByIdCommand : IRequest<Result<PieSummary>>
+public class GetPieByIdCommand : IRequest<Result<PieDetails>>
 {
     public int Id { get; set; }
 }
 
-public class GetPieByIdHandler(ITrading212Client trading212Client, ILogger<GetPieByIdHandler> logger) : RequestHandlerBase<GetPieByIdCommand, Result<PieSummary>>
+public class GetPieByIdHandler(ITrading212Client trading212Client, ILogger<GetPieByIdHandler> logger) : RequestHandlerBase<GetPieByIdCommand, Result<PieDetails>>
 {
-    public override async Task<Result<PieSummary>> Handle(GetPieByIdCommand request, CancellationToken ct)
+    public override async Task<Result<PieDetails>> Handle(GetPieByIdCommand request, CancellationToken ct)
     {
         try
         {
@@ -25,7 +25,7 @@ public class GetPieByIdHandler(ITrading212Client trading212Client, ILogger<GetPi
             }
 
             logger.LogDebug("Successfully retrieved pie with id {Id}", request.Id);
-            return Result<PieSummary>.Ok(pie);
+            return Result<PieDetails>.Ok(pie);
         }
         catch (Exception ex)
         {

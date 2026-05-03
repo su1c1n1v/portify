@@ -49,7 +49,7 @@ public class CurrencySummary
 public class StockSummary
 {
     public string Name { get; set; } = null!;
-
+    public string Ticker { get; set; } = null!;
     public decimal CurrentValue { get; set; }
     public decimal Quantity { get; set; }
     public string Currency { get; set; } = null!;
@@ -57,4 +57,5 @@ public class StockSummary
     public decimal UnrealizedProfitLossPercentage { get; set; }
     public decimal PortfolioProfitLossPercentage { get; set; }
     public decimal Percentage { get; set; }
+    public string Pie { get; set; } = null!;
 }
