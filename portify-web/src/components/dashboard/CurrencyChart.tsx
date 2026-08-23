@@ -1,12 +1,14 @@
+import { ArcElement, Chart as ChartJS, Tooltip } from 'chart.js';
 import React from 'react';
-import { Chart as ChartJS, ArcElement, Tooltip } from 'chart.js';
 import { Doughnut } from 'react-chartjs-2';
-import { currencySummary } from '../../data/mock';
+import type { CurrencySummary } from '../../types';
 import Card from '../shared/Card';
 
 ChartJS.register(ArcElement, Tooltip);
 
-const CurrencyChart: React.FC = () => {
+interface Props { currencies: CurrencySummary[]; }
+
+const CurrencyChart: React.FC<Props> = ({ currencies: currencySummary }) => {
   const data = {
     labels: currencySummary.map((c) => c.currency),
     datasets: [

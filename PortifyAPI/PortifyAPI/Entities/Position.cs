@@ -51,11 +51,14 @@ public class StockSummary
     public string Name { get; set; } = null!;
     public string Ticker { get; set; } = null!;
     public decimal CurrentValue { get; set; }
+    public decimal AveragePricePaid { get; set; }
+    public decimal CurrentPrice { get; set; }
     public decimal Quantity { get; set; }
     public string Currency { get; set; } = null!;
     public decimal UnrealizedProfitLoss { get; set; }
     public decimal UnrealizedProfitLossPercentage { get; set; }
     public decimal PortfolioProfitLossPercentage { get; set; }
     public decimal Percentage { get; set; }
+    public decimal TotalPositionPercentage { get; set; }
     public string Pie { get; set; } = null!;
 }

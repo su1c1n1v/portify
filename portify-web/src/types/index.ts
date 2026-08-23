@@ -1,6 +1,6 @@
 export type PieStatus = 'AHEAD' | 'ON_TRACK' | 'BEHIND';
-export type Currency = 'USD' | 'EUR' | 'GBP'| 'CHF' | 'GBX';
-export type PieName = 'Technology' | 'Health' | 'Industry' | 'ETFs' | 'Consumer' | 'Commodities';
+export type Currency = 'USD' | 'EUR' | 'GBP'| 'CHF' | 'GBX' | string;
+export type PieName = string;
 
 export interface Position {
   ticker: string;
@@ -27,6 +27,7 @@ export interface CurrencySummary {
 export interface Holding {
   ticker: string;
   percentage: number;
+  name: string;
 }
 
 export interface Pie {
@@ -35,7 +36,7 @@ export interface Pie {
   invested: number;
   value: number;
   returnPct: number;
-  dividend: number;
+  dividendGained: number;
   goalProgress: number;
   holdings: Holding[];
   chartData: number[];

@@ -31,6 +31,8 @@ public class PositionsToPositionsSummary : IMapper<IEnumerable<Position>, Positi
                     Name = g.Instrument.Name,
                     Ticker = g.Instrument.Ticker,
                     Quantity = g.Quantity,
+                    CurrentPrice = g.CurrentPrice,
+                    AveragePricePaid = g.AveragePricePaid,
                     CurrentValue = g.WalletImpact.CurrentValue,
                     Currency = g.Instrument.Currency,
                     UnrealizedProfitLossPercentage = Math.Round(g.WalletImpact.UnrealizedProfitLoss / g.WalletImpact.CurrentValue * 100, summaryDecimalAmount),

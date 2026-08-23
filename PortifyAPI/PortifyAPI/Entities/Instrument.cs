@@ -10,6 +10,7 @@ public class PiePosition
 {
     public List<StockSummary> Instruments { get; set; } = null!;
     public Settings Settings { get; set; } = null!;
+    public DividendDetails DividendDetails { get; set; } = null!;
 }
 
 public class Settings
@@ -34,6 +35,7 @@ public class SettingSummary
     public decimal CurrentValue { get; set; }
     public decimal Percentage { get; set; }
     public string DividendCashAction { get; set; } = null!;
+    public decimal DividendGained { get; set; }
 }
 
 public class InstrumentDetails

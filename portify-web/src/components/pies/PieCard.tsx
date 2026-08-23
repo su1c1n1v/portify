@@ -1,5 +1,5 @@
+import { ArcElement, Chart as ChartJS } from 'chart.js';
 import React from 'react';
-import { Chart as ChartJS, ArcElement } from 'chart.js';
 import { Doughnut } from 'react-chartjs-2';
 import type { Pie } from '../../types';
 
@@ -70,7 +70,7 @@ const PieCard: React.FC<PieCardProps> = ({ pie }) => {
             { label: 'Invested', value: `€${pie.invested.toLocaleString()}` },
             { label: 'Value',    value: `€${pie.value.toLocaleString()}` },
             { label: 'Return',   value: `${positive ? '+' : ''}${pie.returnPct}%`, colored: true },
-            { label: 'Dividend', value: `€${pie.dividend.toFixed(2)}` },
+            { label: 'Dividend', value: `€${pie.dividendGained.toFixed(2)}` },
           ].map(({ label, value, colored }) => (
             <div key={label} className="flex justify-between text-[12px]">
               <span className="text-muted">{label}</span>
@@ -97,7 +97,7 @@ const PieCard: React.FC<PieCardProps> = ({ pie }) => {
       <div className="flex flex-col gap-1">
         {pie.holdings.map((h) => (
           <div key={h.ticker} className="flex items-center text-[12px] gap-2">
-            <span className="text-muted w-10 flex-shrink-0">{h.ticker}</span>
+            <span className="text-muted w-40 flex-shrink-0">{h.name}</span>
             <div className="flex-1 bg-border rounded-full h-[3px] overflow-hidden">
               <div
                 className="h-full rounded-full"

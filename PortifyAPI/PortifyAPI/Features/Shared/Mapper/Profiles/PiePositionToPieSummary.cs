@@ -8,6 +8,7 @@ public class PiePositionToPieSummary : IMapper<IEnumerable<PiePosition>, IEnumer
     {
         return source.Select(piePosition =>
         {
+            var currentValue = piePosition.Instruments.Sum(i => i.CurrentValue);
             return new PieSummary
             {
                 Settings = new SettingSummary
@@ -15,8 +16,9 @@ public class PiePositionToPieSummary : IMapper<IEnumerable<PiePosition>, IEnumer
                     Id = piePosition.Settings.Id,
                     Name = piePosition.Settings.Name,
                     CreationDate = piePosition.Settings.CreationDate,
-                    CurrentValue = piePosition.Instruments.Sum(i => i.CurrentValue),
+                    CurrentValue = currentValue,
                     Percentage = piePosition.Instruments.Sum(i => i.Percentage),
+                    DividendGained = piePosition.DividendDetails.Gained,
                     DividendCashAction = piePosition.Settings.DividendCashAction,
                 },
                 Stocks = piePosition.Instruments.Select(i => new StockSummary
@@ -24,13 +26,16 @@ public class PiePositionToPieSummary : IMapper<IEnumerable<PiePosition>, IEnumer
                     Name = i.Name,
                     Ticker = i.Ticker,
                     CurrentValue = i.CurrentValue,
+                    AveragePricePaid = i.AveragePricePaid,
+                    CurrentPrice = i.CurrentPrice,
                     Currency = i.Currency,
                     Pie = piePosition.Settings.Name,
                     Quantity = i.Quantity,
                     UnrealizedProfitLoss = i.UnrealizedProfitLoss,
                     UnrealizedProfitLossPercentage = i.UnrealizedProfitLossPercentage,
                     PortfolioProfitLossPercentage = i.PortfolioProfitLossPercentage,
-                    Percentage = i.Percentage,
+                    Percentage = i.CurrentValue / currentValue * 100,
+                    TotalPositionPercentage = i.Percentage,
                 })
             };
         });

@@ -1,18 +1,21 @@
-import React from 'react';
 import {
-  Chart as ChartJS,
-  CategoryScale,
-  LinearScale,
   BarElement,
+  CategoryScale,
+  Chart as ChartJS,
+  LinearScale,
   Tooltip,
 } from 'chart.js';
+import React from 'react';
 import { Bar } from 'react-chartjs-2';
-import { positions, CHART_COLORS } from '../../data/mock';
+import { CHART_COLORS } from '../../data/mock';
+import type { Position } from '../../types';
 import Card from '../shared/Card';
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, Tooltip);
 
-const PnlChart: React.FC = () => {
+interface Props { positions: Position[]; }
+
+const PnlChart: React.FC<Props> = ({ positions }) => {
   const sorted = [...positions].sort((a, b) => b.unrealizedPnL - a.unrealizedPnL);
 
   const data = {

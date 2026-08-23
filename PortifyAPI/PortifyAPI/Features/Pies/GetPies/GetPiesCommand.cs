@@ -22,18 +22,20 @@ public class GetPiesHandler(ITrading212Client trading212Client, ILogger<GetPiesH
                 return Result<IEnumerable<PieSummary>>.Ok(cachedPies);
             }
 
-            var positions = trading212Client.GetPositionsAsync(ct);
-            var pies = await trading212Client.GetPiesAsync(ct);
+            var positionsTask = trading212Client.GetPositionsAsync(ct);
+            var piesTask = trading212Client.GetPiesAsync(ct);
+
+            var pieSummaries = new List<PiePosition>();
+
+            var positionsResult = mapper.Map<IEnumerable<Position>, PositionsSummary>(await positionsTask);
+
+            var pies = await piesTask;
 
             if (pies == null)
             {
                 logger.LogWarning("No pies found");
                 return new NotFoundError("No pies found");
             }
-
-            var pieSummaries = new List<PiePosition>();
-
-            var positionsResult = mapper.Map<IEnumerable<Position>, PositionsSummary>(await positions);
 
             foreach (var pie in pies)
             {
@@ -43,7 +45,8 @@ public class GetPiesHandler(ITrading212Client trading212Client, ILogger<GetPiesH
                 pieSummaries.Add(new PiePosition
                 {
                     Instruments = positionsResult.Stocks.Where(s => pieDetails.Instruments.Any(i => i.Ticker == s.Ticker)).ToList(),
-                    Settings = pieDetails.Settings
+                    Settings = pieDetails.Settings,
+                    DividendDetails = pie.DividendDetails
                 });
 
                 await timeout;

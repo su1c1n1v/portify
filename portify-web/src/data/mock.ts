@@ -48,34 +48,34 @@ export const positions: Position[] = [
 
 export const pies: Pie[] = [
   {
-    id: 'Technology', status: 'AHEAD', invested: 8662, value: 9920, returnPct: 14.5, dividend: 42.10, goalProgress: 87, color: '#6c63ff',
+    id: 'Technology', status: 'AHEAD', invested: 8662, value: 9920, returnPct: 14.5, dividendGained: 42.10, goalProgress: 87, color: '#6c63ff',
     chartData: [34, 29, 26, 11],
-    holdings: [{ ticker: 'AAPL', percentage: 34 }, { ticker: 'MSFT', percentage: 29 }, { ticker: 'NVDA', percentage: 26 }, { ticker: 'Other', percentage: 11 }],
+    holdings: [{ ticker: 'AAPL', percentage: 34, name: 'Apple Inc.' }, { ticker: 'MSFT', percentage: 29, name: 'Microsoft Corp.' }, { ticker: 'NVDA', percentage: 26, name: 'NVIDIA Corp.' }, { ticker: 'Other', percentage: 11, name: 'Other' }],
   },
   {
-    id: 'Health', status: 'ON_TRACK', invested: 3040, value: 3190, returnPct: 4.9, dividend: 88.40, goalProgress: 64, color: '#00c9a7',
+    id: 'Health', status: 'ON_TRACK', invested: 3040, value: 3190, returnPct: 4.9, dividendGained: 88.40, goalProgress: 64, color: '#00c9a7',
     chartData: [62, 38],
-    holdings: [{ ticker: 'JNJ', percentage: 62 }, { ticker: 'UNH', percentage: 38 }],
+    holdings: [{ ticker: 'JNJ', percentage: 62, name: 'Johnson & Johnson' }, { ticker: 'UNH', percentage: 38, name: 'UnitedHealth Group' }],
   },
   {
-    id: 'Industry', status: 'ON_TRACK', invested: 2100, value: 2310, returnPct: 10.0, dividend: 31.00, goalProgress: 58, color: '#ffd166',
+    id: 'Industry', status: 'ON_TRACK', invested: 2100, value: 2310, returnPct: 10.0, dividendGained: 31.00, goalProgress: 58, color: '#ffd166',
     chartData: [57, 26, 17],
-    holdings: [{ ticker: 'SIE', percentage: 57 }, { ticker: 'CAT', percentage: 26 }, { ticker: 'HON', percentage: 17 }],
+    holdings: [{ ticker: 'SIE', percentage: 57, name: 'Siemens AG' }, { ticker: 'CAT', percentage: 26, name: 'Caterpillar Inc.' }, { ticker: 'HON', percentage: 17, name: 'Honeywell International Inc.' }],
   },
   {
-    id: 'ETFs', status: 'AHEAD', invested: 3800, value: 4300, returnPct: 13.2, dividend: 120.00, goalProgress: 75, color: '#4fc3f7',
+    id: 'ETFs', status: 'AHEAD', invested: 3800, value: 4300, returnPct: 13.2, dividendGained: 120.00, goalProgress: 75, color: '#4fc3f7',
     chartData: [51, 32, 17],
-    holdings: [{ ticker: 'VWRL', percentage: 51 }, { ticker: 'CSPX', percentage: 32 }, { ticker: 'IEMA', percentage: 17 }],
+    holdings: [{ ticker: 'VWRL', percentage: 51, name: 'Vanguard FTSE All-World' }, { ticker: 'CSPX', percentage: 32, name: 'iShares Core S&P 500 UCITS ETF' }, { ticker: 'IEMA', percentage: 17, name: 'iShares MSCI Emerging Markets UCITS ETF' }],
   },
   {
-    id: 'Consumer', status: 'BEHIND', invested: 2200, value: 2310, returnPct: 5.0, dividend: 14.80, goalProgress: 42, color: '#ff8a65',
+    id: 'Consumer', status: 'BEHIND', invested: 2200, value: 2310, returnPct: 5.0, dividendGained: 14.80, goalProgress: 42, color: '#ff8a65',
     chartData: [66, 20, 14],
-    holdings: [{ ticker: 'AMZN', percentage: 66 }, { ticker: 'PG', percentage: 20 }, { ticker: 'COST', percentage: 14 }],
+    holdings: [{ ticker: 'AMZN', percentage: 66, name: 'Amazon.com Inc.' }, { ticker: 'PG', percentage: 20, name: 'Procter & Gamble Co.' }, { ticker: 'COST', percentage: 14, name: 'Costco Wholesale Corp.' }],
   },
   {
-    id: 'Commodities', status: 'ON_TRACK', invested: 2900, value: 2800, returnPct: -3.4, dividend: 55.20, goalProgress: 70, color: '#ba68c8',
+    id: 'Commodities', status: 'ON_TRACK', invested: 2900, value: 2800, returnPct: -3.4, dividendGained: 55.20, goalProgress: 70, color: '#ba68c8',
     chartData: [59, 35, 6],
-    holdings: [{ ticker: 'BP', percentage: 59 }, { ticker: 'GOLD', percentage: 35 }, { ticker: 'RIO', percentage: 6 }],
+    holdings: [{ ticker: 'BP', percentage: 59, name: 'BP plc' }, { ticker: 'GOLD', percentage: 35, name: 'Barrick Gold Corp.' }, { ticker: 'RIO', percentage: 6, name: 'Rio Tinto Group' }],
   },
 ];
 

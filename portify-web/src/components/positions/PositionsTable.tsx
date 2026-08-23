@@ -1,8 +1,9 @@
-import React, { useState, useMemo } from 'react';
-import { positions as allPositions } from '../../data/mock';
-import type { Currency, PieName } from '../../types';
-import PositionRow from './PositionRow';
+import React, { useMemo, useState } from 'react';
+import type { Currency, Position } from '../../types';
 import Card from '../shared/Card';
+import PositionRow from './PositionRow';
+
+interface Props { positions: Position[]; pieNames: string[]; }
 
 type SortKey = 'value' | 'unrealizedPnL' | 'unrealizedPnLPct' | 'portfolioPct' | 'quantity';
 type SortDir = 'asc' | 'desc';
@@ -28,7 +29,7 @@ const SearchIcon = () => (
   </svg>
 );
 
-const PositionsTable: React.FC = () => {
+const PositionsTable: React.FC<Props> = ({ positions: allPositions, pieNames }) => {
   const [search, setSearch]       = useState('');
   const [currency, setCurrency]   = useState<string>('All');
   const [pie, setPie]             = useState<string>('All');
@@ -59,7 +60,7 @@ const PositionsTable: React.FC = () => {
         const mul = sortDir === 'desc' ? -1 : 1;
         return (a[sortKey] - b[sortKey]) * mul;
       });
-  }, [search, currency, pie, pnlFilter, sortKey, sortDir]);
+  }, [search, currency, pie, pnlFilter, sortKey, sortDir, allPositions]);
 
   const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
   const paged = filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
@@ -87,7 +88,7 @@ const PositionsTable: React.FC = () => {
           </select>
           <select className={selectCls} value={pie} onChange={(e) => { setPie(e.target.value); setPage(1); }}>
             <option value="All">All Pies</option>
-            {(['Technology','Health','Industry','ETFs','Consumer','Commodities'] as PieName[]).map((p) => (
+            {pieNames.map((p) => (
               <option key={p}>{p}</option>
             ))}
           </select>

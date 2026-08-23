@@ -40,12 +40,21 @@ public class Trading212Client : ITrading212Client
 
     public async Task<IEnumerable<Position>> GetPositionsAsync(CancellationToken ct = default)
     {
+        var cachedPositions = _cache.Get<List<Position>>("positions");
+        if (cachedPositions != null)
+        {
+            return cachedPositions;
+        }
+
         var response = await _httpClient.GetAsync("equity/positions", ct);
         response.EnsureSuccessStatusCode();
 
         var content = await response.Content.ReadAsStringAsync(ct);
-        return JsonSerializer.Deserialize<List<Position>>(
+        var positions = JsonSerializer.Deserialize<List<Position>>(
             content, options: new JsonSerializerOptions { PropertyNameCaseInsensitive = true }) ?? [];
+        _cache.Set("positions", positions);
+
+        return positions;
     }
 
     public async Task<Account> GetAccountsAsync(CancellationToken ct = default)

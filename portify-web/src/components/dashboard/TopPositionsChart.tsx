@@ -1,14 +1,14 @@
-import React from 'react';
 import {
-  Chart as ChartJS,
-  CategoryScale,
-  LinearScale,
   BarElement,
+  CategoryScale,
+  Chart as ChartJS,
+  LinearScale,
   Tooltip,
 } from 'chart.js';
+import React from 'react';
 import { Bar } from 'react-chartjs-2';
-import { positions } from '../../data/mock';
 import { CHART_COLORS } from '../../data/mock';
+import type { Position } from '../../types';
 import Card from '../shared/Card';
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, Tooltip);
@@ -22,11 +22,13 @@ const PIE_BAR_COLORS: Record<string, string> = {
   Industry:    CHART_COLORS.yellow,
 };
 
-const TopPositionsChart: React.FC = () => {
+interface Props { positions: Position[]; }
+
+const TopPositionsChart: React.FC<Props> = ({ positions }) => {
   const top = [...positions].sort((a, b) => b.value - a.value).slice(0, 8);
 
   const data = {
-    labels: top.map((p) => p.ticker),
+    labels: top.map((p) => p.name),
     datasets: [
       {
         label: 'Value (€)',
