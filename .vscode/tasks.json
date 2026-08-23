@@ -40,6 +40,25 @@
                 "${workspaceFolder}/PortifyAPI/PortifyAPI/PortifyAPI.csproj"
             ],
             "problemMatcher": "$msCompile"
+        },
+        {
+            "label": "start portify-web",
+            "type": "shell",
+            "command": "npm start",
+            "options": {
+                "cwd": "${workspaceFolder}/portify-web"
+            },
+            "isBackground": true,
+            "problemMatcher": {
+                "pattern": {
+                    "regexp": "^"
+                },
+                "background": {
+                    "activeOnStart": true,
+                    "beginsPattern": "Starting the development server",
+                    "endsPattern": "Compiled|Failed to compile"
+                }
+            }
         }
     ]
 }

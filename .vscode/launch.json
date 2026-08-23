@@ -41,6 +41,23 @@
             "name": "Attach to PortifyAPI",
             "type": "coreclr",
             "request": "attach"
+        },
+        {
+            "name": "Launch Portify Web",
+            "type": "chrome",
+            "request": "launch",
+            "url": "http://localhost:3000",
+            "webRoot": "${workspaceFolder}/portify-web/src",
+            "preLaunchTask": "start portify-web"
+        }
+    ],
+    "compounds": [
+        {
+            "name": "Launch Full Stack",
+            "configurations": [
+                "Launch PortifyAPI (No Browser)",
+                "Launch Portify Web"
+            ]
         }
     ]
 }
