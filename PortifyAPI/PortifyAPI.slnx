@@ -1,3 +1,5 @@
 <Solution>
   <Project Path="PortifyAPI/PortifyAPI.csproj" />
+  <Project Path="PortifyAPI.ServiceDefaults/PortifyAPI.ServiceDefaults.csproj" />
+  <Project Path="PortifyAPI.AppHost/PortifyAPI.AppHost.csproj" />
 </Solution>

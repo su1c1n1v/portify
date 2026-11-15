@@ -3,7 +3,7 @@ using PortifyAPI.Features.Pies.GetPies;
 
 namespace PortifyAPI.Features.Shared.Mapper.Profiles;
 
-internal class PiePositionToPieSummary : IMapper<IEnumerable<PiePosition>, IEnumerable<PieSummaryDto>>
+public class PiePositionToPieSummary : IMapper<IEnumerable<PiePosition>, IEnumerable<PieSummaryDto>>
 {
     public IEnumerable<PieSummaryDto> Map(IEnumerable<PiePosition> source)
     {

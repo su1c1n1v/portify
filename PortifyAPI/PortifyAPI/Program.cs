@@ -7,6 +7,8 @@ using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.AddServiceDefaults();
+
 builder.Services.AddFastEndpoints();
 builder.Services.Configure<Trading212ClientOptions>(
     builder.Configuration.GetSection(Trading212ClientOptions.SectionName));
@@ -36,6 +38,8 @@ builder.Services.ConfigureHttpJsonOptions(options =>
 
 
 var app = builder.Build();
+
+app.MapDefaultEndpoints();
 
 app.UseFastEndpoints();
 app.Run();
