@@ -1,17 +1,18 @@
-using PortifyAPI.Entities;
+using PortifyAPI.Dtos;
+using PortifyAPI.Features.Pies.GetPies;
 
 namespace PortifyAPI.Features.Shared.Mapper.Profiles;
 
-public class PiePositionToPieSummary : IMapper<IEnumerable<PiePosition>, IEnumerable<PieSummary>>
+internal class PiePositionToPieSummary : IMapper<IEnumerable<PiePosition>, IEnumerable<PieSummaryDto>>
 {
-    public IEnumerable<PieSummary> Map(IEnumerable<PiePosition> source)
+    public IEnumerable<PieSummaryDto> Map(IEnumerable<PiePosition> source)
     {
         return source.Select(piePosition =>
         {
             var currentValue = piePosition.Instruments.Sum(i => i.CurrentValue);
-            return new PieSummary
+            return new PieSummaryDto
             {
-                Settings = new SettingSummary
+                Settings = new SettingSummaryDto
                 {
                     Id = piePosition.Settings.Id,
                     Name = piePosition.Settings.Name,
@@ -21,7 +22,7 @@ public class PiePositionToPieSummary : IMapper<IEnumerable<PiePosition>, IEnumer
                     DividendGained = piePosition.DividendDetails.Gained,
                     DividendCashAction = piePosition.Settings.DividendCashAction,
                 },
-                Stocks = piePosition.Instruments.Select(i => new StockSummary
+                Stocks = piePosition.Instruments.Select(i => new StockSummaryDto
                 {
                     Name = i.Name,
                     Ticker = i.Ticker,
@@ -36,8 +37,8 @@ public class PiePositionToPieSummary : IMapper<IEnumerable<PiePosition>, IEnumer
                     PortfolioProfitLossPercentage = i.PortfolioProfitLossPercentage,
                     Percentage = i.CurrentValue / currentValue * 100,
                     TotalPositionPercentage = i.Percentage,
-                })
+                }).ToArray()
             };
-        });
+        }).ToArray();
     }
 }

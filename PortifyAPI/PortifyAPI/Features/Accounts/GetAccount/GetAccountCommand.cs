@@ -1,15 +1,17 @@
 using PortifyAPI.Entities;
+using PortifyAPI.Dtos;
+using PortifyAPI.Features.Shared.Mapper;
 using PortifyAPI.Features.Shared.Mediator;
 using PortifyAPI.Features.Shared.Results;
 using PortifyAPI.Infrastructure.Trading212;
 
 namespace PortifyAPI.Features.Accounts.GetAccount;
 
-public class GetAccountCommand : IRequest<Result<Account>> { }
+public class GetAccountCommand : IRequest<Result<AccountDto>> { }
 
-public class GetAccountHandler(ITrading212Client trading212Client, ILogger<GetAccountHandler> logger) : RequestHandlerBase<GetAccountCommand, Result<Account>>
+public class GetAccountHandler(ITrading212Client trading212Client, ILogger<GetAccountHandler> logger, IMappingFacade mapper) : RequestHandlerBase<GetAccountCommand, Result<AccountDto>>
 {
-    public override async Task<Result<Account>> Handle(GetAccountCommand request, CancellationToken ct)
+    public override async Task<Result<AccountDto>> Handle(GetAccountCommand request, CancellationToken ct)
     {
         try
         {
@@ -21,8 +23,10 @@ public class GetAccountHandler(ITrading212Client trading212Client, ILogger<GetAc
                 return new NotFoundError("No accounts found");
             }
 
+            var accountDtos = mapper.Map<Account, AccountDto>(accounts);
+
             logger.LogDebug("Successfully retrieved accounts");
-            return Result<Account>.Ok(accounts);
+            return Result<AccountDto>.Ok(accountDtos);
         }
         catch (Exception ex)
         {

@@ -1,18 +1,20 @@
 using PortifyAPI.Entities;
+using PortifyAPI.Dtos;
+using PortifyAPI.Features.Shared.Mapper;
 using PortifyAPI.Features.Shared.Mediator;
 using PortifyAPI.Features.Shared.Results;
 using PortifyAPI.Infrastructure.Trading212;
 
 namespace PortifyAPI.Features.Pies.GetPieById;
 
-public class GetPieByIdCommand : IRequest<Result<PieDetails>>
+public class GetPieByIdCommand : IRequest<Result<PieDetailsDto>>
 {
     public int Id { get; set; }
 }
 
-public class GetPieByIdHandler(ITrading212Client trading212Client, ILogger<GetPieByIdHandler> logger) : RequestHandlerBase<GetPieByIdCommand, Result<PieDetails>>
+public class GetPieByIdHandler(ITrading212Client trading212Client, ILogger<GetPieByIdHandler> logger, IMappingFacade mapper) : RequestHandlerBase<GetPieByIdCommand, Result<PieDetailsDto>>
 {
-    public override async Task<Result<PieDetails>> Handle(GetPieByIdCommand request, CancellationToken ct)
+    public override async Task<Result<PieDetailsDto>> Handle(GetPieByIdCommand request, CancellationToken ct)
     {
         try
         {
@@ -23,9 +25,11 @@ public class GetPieByIdHandler(ITrading212Client trading212Client, ILogger<GetPi
                 logger.LogWarning("No pie found with id {Id}", request.Id);
                 return new NotFoundError($"No pie found with id {request.Id}");
             }
+            var pieDto = mapper.Map<PieDetails, PieDetailsDto>(pie);
 
             logger.LogDebug("Successfully retrieved pie with id {Id}", request.Id);
-            return Result<PieDetails>.Ok(pie);
+
+            return Result<PieDetailsDto>.Ok(pieDto);
         }
         catch (Exception ex)
         {

@@ -1,32 +1,33 @@
 using PortifyAPI.Entities;
+using PortifyAPI.Dtos;
 
 namespace PortifyAPI.Features.Shared.Mapper.Profiles;
 
-public class PositionsToPositionsSummary : IMapper<IEnumerable<Position>, PositionsSummary>
+public class PositionsToPositionsSummary : IMapper<IEnumerable<Position>, PositionsSummaryDto>
 {
     private const int summaryDecimalAmount = 2;
 
-    public PositionsSummary Map(IEnumerable<Position> source)
+    public PositionsSummaryDto Map(IEnumerable<Position> source)
     {
         var totalStocks = source.Count();
         var totalCurrentValue = source.Sum(p => p.WalletImpact.CurrentValue);
 
-        return new PositionsSummary
+        return new PositionsSummaryDto
         {
             TotalCurrentValue = totalCurrentValue,
             TotalStocks = totalStocks,
             UnrealizedTotalProfitLoss = source.Sum(p => p.WalletImpact.UnrealizedProfitLoss),
             Currencies = source
                 .GroupBy(p => p.Instrument.Currency)
-                .Select(g => new CurrencySummary
+                .Select(g => new CurrencySummaryDto
                 {
                     Currency = g.Key,
                     Quantity = g.Count(),
                     Percentage = Math.Round((decimal)g.Count() / totalStocks * 100, summaryDecimalAmount),
-                }),
+                }).ToArray(),
 
-            Stocks = source
-                .Select(g => new StockSummary
+            Stocks = [.. source
+                .Select(g => new StockSummaryDto
                 {
                     Name = g.Instrument.Name,
                     Ticker = g.Instrument.Ticker,
@@ -39,7 +40,7 @@ public class PositionsToPositionsSummary : IMapper<IEnumerable<Position>, Positi
                     PortfolioProfitLossPercentage = Math.Round(g.WalletImpact.UnrealizedProfitLoss / source.Sum(p => p.WalletImpact.TotalCost) * 100, summaryDecimalAmount),
                     UnrealizedProfitLoss = g.WalletImpact.UnrealizedProfitLoss,
                     Percentage = Math.Round(g.WalletImpact.CurrentValue / totalCurrentValue * 100, summaryDecimalAmount),
-                })
+                })]
         };
     }
 }
