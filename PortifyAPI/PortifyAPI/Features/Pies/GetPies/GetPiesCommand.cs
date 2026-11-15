@@ -1,4 +1,5 @@
 using PortifyAPI.Entities;
+using PortifyAPI.Dtos;
 using PortifyAPI.Features.Shared.Cache;
 using PortifyAPI.Features.Shared.Mapper;
 using PortifyAPI.Features.Shared.Mediator;
@@ -7,19 +8,19 @@ using PortifyAPI.Infrastructure.Trading212;
 
 namespace PortifyAPI.Features.Pies.GetPies;
 
-public class GetPiesCommand : IRequest<Result<IEnumerable<PieSummary>>> { }
+public class GetPiesCommand : IRequest<Result<IEnumerable<PieSummaryDto>>> { }
 
-public class GetPiesHandler(ITrading212Client trading212Client, ILogger<GetPiesHandler> logger, ICache cache, IMappingFacade mapper) : RequestHandlerBase<GetPiesCommand, Result<IEnumerable<PieSummary>>>
+public class GetPiesHandler(ITrading212Client trading212Client, ILogger<GetPiesHandler> logger, ICache cache, IMappingFacade mapper) : RequestHandlerBase<GetPiesCommand, Result<IEnumerable<PieSummaryDto>>>
 {
-    public override async Task<Result<IEnumerable<PieSummary>>> Handle(GetPiesCommand request, CancellationToken ct)
+    public override async Task<Result<IEnumerable<PieSummaryDto>>> Handle(GetPiesCommand request, CancellationToken ct)
     {
         try
         {
-            var cachedPies = cache.Get<IEnumerable<PieSummary>>("piesSummary");
+            var cachedPies = cache.Get<IEnumerable<PieSummaryDto>>("piesSummary");
             if (cachedPies != null)
             {
                 logger.LogDebug("Returning cached pies");
-                return Result<IEnumerable<PieSummary>>.Ok(cachedPies);
+                return Result<IEnumerable<PieSummaryDto>>.Ok(cachedPies);
             }
 
             var positionsTask = trading212Client.GetPositionsAsync(ct);
@@ -27,7 +28,7 @@ public class GetPiesHandler(ITrading212Client trading212Client, ILogger<GetPiesH
 
             var pieSummaries = new List<PiePosition>();
 
-            var positionsResult = mapper.Map<IEnumerable<Position>, PositionsSummary>(await positionsTask);
+            var positionsResult = mapper.Map<IEnumerable<Position>, PositionsSummaryDto>(await positionsTask);
 
             var pies = await piesTask;
 
@@ -42,22 +43,20 @@ public class GetPiesHandler(ITrading212Client trading212Client, ILogger<GetPiesH
                 var pieDetails = await trading212Client.GetPieByIdAsync(pie.Id, ct);
                 var timeout = Task.Delay(TimeSpan.FromSeconds(5), ct);
 
-                pieSummaries.Add(new PiePosition
-                {
-                    Instruments = positionsResult.Stocks.Where(s => pieDetails.Instruments.Any(i => i.Ticker == s.Ticker)).ToList(),
-                    Settings = pieDetails.Settings,
-                    DividendDetails = pie.DividendDetails
-                });
+                pieSummaries.Add(new PiePosition(
+                    positionsResult.Stocks.Where(s => pieDetails.Instruments.Any(i => i.Ticker == s.Ticker)).ToList(),
+                    pieDetails.Settings,
+                    pie.DividendDetails));
 
                 await timeout;
             }
 
-            var mappedPieSummaries = mapper.Map<IEnumerable<PiePosition>, IEnumerable<PieSummary>>(pieSummaries);
+            var mappedPieSummaries = mapper.Map<IEnumerable<PiePosition>, IEnumerable<PieSummaryDto>>(pieSummaries);
 
             logger.LogDebug("Successfully retrieved pies");
             cache.Set("piesSummary", mappedPieSummaries);
 
-            return Result<IEnumerable<PieSummary>>.Ok(mappedPieSummaries);
+            return Result<IEnumerable<PieSummaryDto>>.Ok(mappedPieSummaries);
         }
         catch (Exception ex)
         {

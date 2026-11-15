@@ -1,6 +1,6 @@
 using FastEndpoints;
 using Microsoft.AspNetCore.Http.HttpResults;
-using PortifyAPI.Entities;
+using PortifyAPI.Dtos;
 using PortifyAPI.Features.Shared.Mediator;
 using FluentValidation.Results;
 using PortifyAPI.Features.Shared.Results;
@@ -8,7 +8,7 @@ using PortifyAPI.Features.Shared.Results;
 namespace PortifyAPI.Features.Accounts.GetAccount;
 
 public class GetAccountsEndpoint(IMediator mediator, ILogger<GetAccountsEndpoint> logger) :
-     EndpointWithoutRequest<Results<Ok<Account>, NotFound, ProblemDetails>>
+     EndpointWithoutRequest<Results<Ok<AccountDto>, NotFound, ProblemDetails>>
 {
     public override void Configure()
     {
@@ -16,7 +16,7 @@ public class GetAccountsEndpoint(IMediator mediator, ILogger<GetAccountsEndpoint
         AllowAnonymous();
     }
 
-    public override async Task<Results<Ok<Account>, NotFound, ProblemDetails>> ExecuteAsync(CancellationToken ct)
+    public override async Task<Results<Ok<AccountDto>, NotFound, ProblemDetails>> ExecuteAsync(CancellationToken ct)
     {
         logger.LogInformation("Received request to get account");
 
@@ -32,7 +32,7 @@ public class GetAccountsEndpoint(IMediator mediator, ILogger<GetAccountsEndpoint
             logger.LogError("Failed to retrieve account: {ErrorMessage}", result.Error.Message);
 
             return new ProblemDetails(
-                new List<ValidationFailure>(),
+                [],
                 "Error retrieving account",
                 result.Error.Message,
                 result.Error.StatusCode);

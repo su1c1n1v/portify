@@ -1,6 +1,6 @@
 using FastEndpoints;
 using Microsoft.AspNetCore.Http.HttpResults;
-using PortifyAPI.Entities;
+using PortifyAPI.Dtos;
 using PortifyAPI.Features.Shared.Mediator;
 using FluentValidation.Results;
 using PortifyAPI.Features.Shared.Results;
@@ -13,7 +13,7 @@ public class GetPieByIdRequest
 }
 
 public class GetPieByIdEndpoint(IMediator mediator, ILogger<GetPieByIdEndpoint> logger) :
-     Endpoint<GetPieByIdRequest, Results<Ok<PieDetails>, NotFound, BadRequest, ProblemDetails>>
+     Endpoint<GetPieByIdRequest, Results<Ok<PieDetailsDto>, NotFound, BadRequest, ProblemDetails>>
 {
     public override void Configure()
     {
@@ -21,7 +21,7 @@ public class GetPieByIdEndpoint(IMediator mediator, ILogger<GetPieByIdEndpoint> 
         AllowAnonymous();
     }
 
-    public override async Task<Results<Ok<PieDetails>, NotFound, BadRequest, ProblemDetails>> ExecuteAsync(GetPieByIdRequest request, CancellationToken ct)
+    public override async Task<Results<Ok<PieDetailsDto>, NotFound, BadRequest, ProblemDetails>> ExecuteAsync(GetPieByIdRequest request, CancellationToken ct)
     {
         logger.LogInformation("Received request to get pie by id {Id}", request.Id);
 
