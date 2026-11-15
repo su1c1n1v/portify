@@ -13,8 +13,8 @@ public static class MediatorModule
         services.AddScoped<IRequestHandlerMarker, GetAccountHandler>();
         services.AddScoped<IRequestHandlerMarker, GetPieByIdHandler>();
         services.AddScoped<IRequestHandlerMarker, GetPiesHandler>();
-        services.AddSingleton<IRequestHandlerRegistry, RequestHandlerRegistry>();
-        services.AddSingleton<IMediator, Mediator>();
+        services.AddScoped<IRequestHandlerRegistry, RequestHandlerRegistry>();
+        services.AddScoped<IMediator, Mediator>();
 
         return services;
     }

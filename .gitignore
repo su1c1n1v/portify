@@ -360,4 +360,7 @@ FodyWeavers.xsd
 mono_crash.*
 *appsettings.Development.json
 *appsettings.Local.json
+appsettings.*.json
 PortifyAPI/PortifyAPI/appsettings.Development.json
+.agents/
+appsettings.Development.json
